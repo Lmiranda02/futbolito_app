@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { LoginForm } from "@/components/auth/login-form";
+import { BrandCrest } from "@/components/team/team-crest";
 import { getCaptain } from "@/lib/auth";
 
 export const metadata: Metadata = {
@@ -26,23 +27,26 @@ export default async function LoginPage(props: PageProps<"/login">) {
   const errorMessage = errorParam ? MENSAJES_ERROR[errorParam] : undefined;
 
   return (
-    <main className="flex flex-1 items-center justify-center px-6 py-16">
-      <div className="w-full max-w-sm">
+    <main className="flex w-full flex-1 items-center justify-center px-6 py-[40px] sm:py-[70px]">
+      <div className="animar-subir w-full max-w-[420px]">
         <div className="text-center">
-          <p className="text-sm font-medium uppercase tracking-widest text-emerald-600">
+          <div className="flex justify-center">
+            <BrandCrest size={56} />
+          </div>
+          <p className="mt-3 font-mono text-[12px] text-tinta/45">
             Arma tu Partido
           </p>
-          <h1 className="mt-3 text-2xl font-bold tracking-tight">
+          <h1 className="mt-2 text-[34px] font-extrabold tracking-[-0.03em] text-tinta">
             Ingresa como capitán
           </h1>
-          <p className="mt-2 text-sm opacity-70">
-            Te mandamos un link a tu correo. Ábrelo desde este mismo
-            dispositivo para entrar.
+          <p className="mx-auto mt-2 max-w-[34ch] text-[15px] text-tinta/60">
+            Te mandamos un link al correo. Ábrelo en este mismo aparato y
+            quedas dentro — no hay contraseña que olvidar.
           </p>
         </div>
 
         {errorMessage && (
-          <p className="mt-6 rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
+          <p className="mt-6 rounded-[12px] border border-rojo/35 bg-rojo/10 px-4 py-3 text-center text-[14px] text-rojo">
             {errorMessage}
           </p>
         )}

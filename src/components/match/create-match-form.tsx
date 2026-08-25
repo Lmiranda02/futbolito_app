@@ -1,10 +1,28 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 
+import { useSound } from "@/components/sound/sound-provider";
 import { crearPartido, type CrearPartidoState } from "@/server/actions/match";
 
 const ESTADO_INICIAL: CrearPartidoState = { status: "idle" };
+
+// Estilo de campo compartido por Convocar y Unirse (ver README del
+// handoff) — cada form lo declara aparte, no hay un solo lugar en el
+// repo hoy que junte estilos de formulario entre pantallas distintas.
+const CAMPO_LABEL =
+  "font-mono text-[11px] tracking-[0.16em] text-tinta/50 uppercase";
+const CAMPO_INPUT =
+  "mt-1 w-full rounded-[12px] border border-tinta/16 bg-black/30 px-[15px] py-[15px] text-[16px] text-tinta outline-none focus:border-lima focus:bg-black/45";
+const CAMPO_ERROR = "mt-1 text-[13px] text-rojo";
+
+const OPCIONES_CUPO = [
+  { etiqueta: "7 jugadores", valor: "7" },
+  { etiqueta: "10 jugadores", valor: "10" },
+  { etiqueta: "12 jugadores", valor: "12" },
+  { etiqueta: "14 jugadores", valor: "14" },
+  { etiqueta: "Sin límite", valor: "" },
+];
 
 export function CreateMatchForm({ teamId }: { teamId: string }) {
   const crearPartidoConEquipo = crearPartido.bind(null, teamId);
@@ -12,11 +30,23 @@ export function CreateMatchForm({ teamId }: { teamId: string }) {
     crearPartidoConEquipo,
     ESTADO_INICIAL,
   );
+  // El chip escribe acá y este input hidden es lo único que ve la server
+  // action — así el cupo pasa a ser chips sin tocar crearPartido().
+  const [cupo, setCupo] = useState("");
+  const { reproducirClick, reproducirSilbato } = useSound();
 
   return (
-    <form action={formAction} className="mt-6 space-y-5">
+    <form
+      action={formAction}
+      // Optimista a propósito: crearPartido() redirige a la página del
+      // partido cuando sale bien, así que nunca hay un estado "success"
+      // distinto que esperar para recién ahí tocar el silbato — también
+      // suena si después falla la validación, pero es solo un sonido.
+      onSubmit={reproducirSilbato}
+      className="animar-subir [animation-delay:.05s] mt-6 flex flex-col gap-5 rounded-[20px] border border-tinta/12 bg-[linear-gradient(165deg,rgba(255,255,255,0.045),rgba(255,255,255,0.012))] p-[26px]"
+    >
       <div>
-        <label htmlFor="venue" className="block text-sm font-medium">
+        <label htmlFor="venue" className={CAMPO_LABEL}>
           Cancha
         </label>
         <input
@@ -24,99 +54,107 @@ export function CreateMatchForm({ teamId }: { teamId: string }) {
           name="venue"
           type="text"
           required
-          placeholder="Cancha Municipal Ñuñoa"
-          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2.5 text-base outline-none focus:border-emerald-600 dark:border-white/20"
+          placeholder="Cancha Municipal de Ñuñoa"
+          className={CAMPO_INPUT}
         />
         {state.fieldErrors?.venue && (
-          <p className="mt-1 text-sm text-red-700 dark:text-red-400">
-            {state.fieldErrors.venue}
-          </p>
+          <p className={CAMPO_ERROR}>{state.fieldErrors.venue}</p>
         )}
       </div>
 
       <div>
-        <label htmlFor="opponent" className="block text-sm font-medium">
-          Rival <span className="font-normal opacity-60">(opcional)</span>
+        <label htmlFor="opponent" className={CAMPO_LABEL}>
+          Rival <span className="text-tinta/48">· opcional</span>
         </label>
         <input
           id="opponent"
           name="opponent"
           type="text"
-          placeholder="Los Tigres"
-          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2.5 text-base outline-none focus:border-emerald-600 dark:border-white/20"
+          placeholder="Los Tíos del Block"
+          className={CAMPO_INPUT}
         />
         {state.fieldErrors?.opponent && (
-          <p className="mt-1 text-sm text-red-700 dark:text-red-400">
-            {state.fieldErrors.opponent}
-          </p>
+          <p className={CAMPO_ERROR}>{state.fieldErrors.opponent}</p>
         )}
       </div>
 
-      <div>
-        <label htmlFor="kickoffAt" className="block text-sm font-medium">
-          Fecha y hora del partido
-        </label>
-        <input
-          id="kickoffAt"
-          name="kickoffAt"
-          type="datetime-local"
-          required
-          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2.5 text-base outline-none focus:border-emerald-600 dark:border-white/20"
-        />
-        {state.fieldErrors?.kickoffAt && (
-          <p className="mt-1 text-sm text-red-700 dark:text-red-400">
-            {state.fieldErrors.kickoffAt}
-          </p>
-        )}
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(210px,1fr))] gap-4">
+        <div>
+          <label htmlFor="kickoffAt" className={CAMPO_LABEL}>
+            Día y hora del pitazo
+          </label>
+          <input
+            id="kickoffAt"
+            name="kickoffAt"
+            type="datetime-local"
+            required
+            className={`${CAMPO_INPUT} font-mono text-[15px]`}
+          />
+          {state.fieldErrors?.kickoffAt && (
+            <p className={CAMPO_ERROR}>{state.fieldErrors.kickoffAt}</p>
+          )}
+        </div>
+
+        <div>
+          <label htmlFor="confirmDeadline" className={CAMPO_LABEL}>
+            Se cierra la lista
+          </label>
+          <input
+            id="confirmDeadline"
+            name="confirmDeadline"
+            type="datetime-local"
+            required
+            className={`${CAMPO_INPUT} font-mono text-[15px]`}
+          />
+          {state.fieldErrors?.confirmDeadline && (
+            <p className={CAMPO_ERROR}>{state.fieldErrors.confirmDeadline}</p>
+          )}
+        </div>
       </div>
 
       <div>
-        <label htmlFor="confirmDeadline" className="block text-sm font-medium">
-          Hora límite para confirmar asistencia
-        </label>
-        <input
-          id="confirmDeadline"
-          name="confirmDeadline"
-          type="datetime-local"
-          required
-          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2.5 text-base outline-none focus:border-emerald-600 dark:border-white/20"
-        />
-        {state.fieldErrors?.confirmDeadline && (
-          <p className="mt-1 text-sm text-red-700 dark:text-red-400">
-            {state.fieldErrors.confirmDeadline}
-          </p>
-        )}
-      </div>
-
-      <div>
-        <label htmlFor="slots" className="block text-sm font-medium">
-          Cupo <span className="font-normal opacity-60">(opcional)</span>
-        </label>
-        <input
-          id="slots"
-          name="slots"
-          type="number"
-          min="1"
-          placeholder="10"
-          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2.5 text-base outline-none focus:border-emerald-600 dark:border-white/20"
-        />
+        <p className={CAMPO_LABEL}>
+          Cupo <span className="text-tinta/48">· opcional</span>
+        </p>
+        <input type="hidden" name="slots" value={cupo} />
+        <div className="mt-2 flex flex-wrap gap-2">
+          {OPCIONES_CUPO.map((opcion) => (
+            <button
+              key={opcion.etiqueta}
+              type="button"
+              onClick={() => {
+                setCupo(opcion.valor);
+                reproducirClick();
+              }}
+              className={
+                "rounded-[10px] px-[18px] py-[13px] text-[14px] font-bold transition-colors " +
+                (cupo === opcion.valor
+                  ? "bg-lima text-tinta-oscura"
+                  : "border border-tinta/16 bg-transparent text-tinta/60")
+              }
+            >
+              {opcion.etiqueta}
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 text-[13px] text-tinta/45">
+          {cupo
+            ? `Cuando lleguen a ${cupo} confirmados te avisamos.`
+            : "Van todos los que confirmen."}
+        </p>
         {state.fieldErrors?.slots && (
-          <p className="mt-1 text-sm text-red-700 dark:text-red-400">
-            {state.fieldErrors.slots}
-          </p>
+          <p className={CAMPO_ERROR}>{state.fieldErrors.slots}</p>
         )}
       </div>
 
       {state.status === "error" && state.message && (
-        <p className="text-sm text-red-700 dark:text-red-400">
-          {state.message}
-        </p>
+        <p className="text-[14px] text-rojo">{state.message}</p>
       )}
 
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-md bg-emerald-600 px-4 py-3 text-base font-medium text-white disabled:opacity-60"
+        className="boton-primario w-full px-4 py-[17px] text-[17px]"
       >
         {pending ? "Creando..." : "Convocar partido"}
       </button>

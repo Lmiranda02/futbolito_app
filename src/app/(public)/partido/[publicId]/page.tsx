@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 
-import { AttendanceButtons } from "@/components/match/attendance-buttons";
+import { AttendanceList, type FilaAsistencia } from "@/components/match/attendance-list";
 import { Countdown } from "@/components/match/countdown";
-import { formatearFechaChile, yaPaso } from "@/lib/dates";
+import { TeamCrest } from "@/components/team/team-crest";
+import { formatearFechaCorta, yaPaso } from "@/lib/dates";
+import { asignarDorsales } from "@/lib/dorsales";
 import { prisma } from "@/lib/prisma";
 
 // El estado de las asistencias cambia todo el tiempo: nunca se puede
@@ -14,12 +16,6 @@ export const metadata: Metadata = {
   // Igual que /unirse: el publicId es la única "llave" del link, no tiene
   // sentido que quede indexado y buscable.
   robots: { index: false, follow: false },
-};
-
-const ETIQUETA_ASISTENCIA: Record<string, string> = {
-  CONFIRMED: "Va",
-  DECLINED: "No va",
-  PENDING: "Sin responder",
 };
 
 export default async function PartidoPublicoPage(
@@ -34,13 +30,15 @@ export default async function PartidoPublicoPage(
 
   if (!match) {
     return (
-      <main className="flex flex-1 items-center justify-center px-6 py-16">
-        <div className="w-full max-w-sm text-center">
-          <p className="text-sm font-medium uppercase tracking-widest text-emerald-600">
+      <main className="flex flex-1 items-center justify-center px-5 py-16">
+        <div className="animar-subir w-full max-w-[440px] text-center">
+          <p className="font-mono text-[11px] tracking-[0.2em] text-lima uppercase">
             Arma tu Partido
           </p>
-          <h1 className="mt-3 text-xl font-semibold">Este link no es válido</h1>
-          <p className="mt-2 text-sm opacity-70">
+          <h1 className="mt-3 text-xl font-bold text-tinta">
+            Este link no es válido
+          </h1>
+          <p className="mt-2 text-sm text-tinta/60">
             Puede que el partido ya no exista. Pídele al capitán el link
             actualizado.
           </p>
@@ -63,78 +61,67 @@ export default async function PartidoPublicoPage(
   const puedeResponder =
     match.status === "SCHEDULED" && !yaPaso(match.confirmDeadline);
 
+  const dorsales = asignarDorsales(asistencias.map((a) => a.teamMember));
+  const filas: FilaAsistencia[] = asistencias.map((asistencia, i) => ({
+    id: asistencia.id,
+    teamMemberId: asistencia.teamMemberId,
+    dorsal: dorsales[i]!,
+    nombre: asistencia.teamMember.nickname ?? asistencia.teamMember.player.name,
+    estado: asistencia.status,
+  }));
+
   return (
-    <main className="flex flex-1 justify-center px-6 py-12">
-      <div className="w-full max-w-sm">
-        <div className="text-center">
-          <p className="text-sm font-medium uppercase tracking-widest text-emerald-600">
+    <main className="flex flex-1 justify-center px-5 py-[34px]">
+      <div className="w-full max-w-[440px]">
+        <div className="animar-subir text-center">
+          <TeamCrest
+            name={match.team.name}
+            teamId={match.team.id}
+            size={48}
+          />
+          <p className="mt-3 font-mono text-[11px] tracking-[0.2em] text-lima uppercase">
             {match.team.name}
           </p>
-          <h1 className="mt-3 text-xl font-semibold">
+          <h1 className="mt-1 text-[32px] leading-[1.05] font-extrabold tracking-[-0.03em] text-tinta text-balance">
             {match.opponent ? `vs. ${match.opponent}` : "Partido"}
           </h1>
-          <p className="mt-2 text-sm opacity-70">
-            {formatearFechaChile(match.kickoffAt)}
+          <p className="mt-3 text-[15px] text-tinta/62">
+            {formatearFechaCorta(match.kickoffAt)}
           </p>
-          <p className="text-sm opacity-70">{match.venue}</p>
-          {match.slots && (
-            <p className="mt-1 text-sm opacity-70">
-              Cupo: {match.slots} jugadores
-            </p>
-          )}
+          <p className="text-[15px] text-tinta/62">{match.venue}</p>
         </div>
 
-        <div className="mt-6 rounded-lg border border-black/10 px-4 py-3 text-center dark:border-white/10">
+        <div className="animar-subir [animation-delay:.05s] mt-6 rounded-2xl border border-lima/30 bg-lima/[0.08] px-[18px] py-[18px] text-center">
           {match.status === "CANCELLED" ? (
-            <p className="text-sm font-medium text-red-700 dark:text-red-400">
+            <p className="text-sm font-medium text-rojo">
               Este partido fue cancelado.
             </p>
           ) : (
-            <Countdown hastaIso={match.confirmDeadline.toISOString()} />
+            <>
+              <p className="font-mono text-[11px] tracking-[0.18em] text-lima uppercase">
+                Tienes hasta
+              </p>
+              <div className="mt-1">
+                <Countdown hastaIso={match.confirmDeadline.toISOString()} />
+              </div>
+              {puedeResponder && (
+                <p className="mt-1 text-[13px] text-tinta/50">
+                  para decir si vas o no.
+                </p>
+              )}
+            </>
           )}
         </div>
 
-        <div className="mt-8">
-          <h2 className="text-sm font-semibold uppercase tracking-wide opacity-70">
-            Plantel ({asistencias.length})
-          </h2>
-          {puedeResponder && (
-            <p className="mt-1 text-xs opacity-60">
-              Toca Voy o No voy junto a tu nombre.
-            </p>
-          )}
-          <ul className="mt-3 space-y-2">
-            {asistencias.map((asistencia) => (
-              <li
-                key={asistencia.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-black/10 px-4 py-3 dark:border-white/10"
-              >
-                <span className="min-w-0 truncate font-medium">
-                  {asistencia.teamMember.nickname ??
-                    asistencia.teamMember.player.name}
-                </span>
-                {puedeResponder ? (
-                  <AttendanceButtons
-                    matchId={match.id}
-                    teamMemberId={asistencia.teamMemberId}
-                    estadoActual={asistencia.status}
-                  />
-                ) : (
-                  <span
-                    className={
-                      asistencia.status === "CONFIRMED"
-                        ? "text-sm font-medium text-emerald-600"
-                        : asistencia.status === "DECLINED"
-                          ? "text-sm font-medium opacity-50"
-                          : "text-sm opacity-60"
-                    }
-                  >
-                    {ETIQUETA_ASISTENCIA[asistencia.status]}
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
+        <div className="animar-subir [animation-delay:.1s] mt-8">
+          {/* La lista propiamente tal — incluye el marcador "{n}/{cupo}
+              van", que sube al instante al tocar Voy/No voy. */}
+          <AttendanceList
+            matchId={match.id}
+            filasIniciales={filas}
+            cupo={match.slots}
+            puedeResponder={puedeResponder}
+          />
         </div>
       </div>
     </main>

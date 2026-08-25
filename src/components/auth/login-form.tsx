@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
+import { useSound } from "@/components/sound/sound-provider";
 import { requestMagicLink, type LoginState } from "@/server/actions/auth";
 
 const ESTADO_INICIAL: LoginState = { status: "idle" };
@@ -11,25 +12,52 @@ export function LoginForm() {
     requestMagicLink,
     ESTADO_INICIAL,
   );
+  // useActionState no tiene forma propia de "volver atrás": esto es lo
+  // que hace que "Usar otro correo" pueda tapar el estado de éxito sin
+  // perder lo que ya devolvió la última respuesta del servidor.
+  const [cambiandoCorreo, setCambiandoCorreo] = useState(false);
+  const { reproducirSilbato } = useSound();
 
-  if (state.status === "success") {
+  // El silbato es de la respuesta real del servidor, no del click en
+  // "Mandarme el link" — por eso va acá y no en el onSubmit del form.
+  useEffect(() => {
+    if (state.status === "success") {
+      reproducirSilbato();
+    }
+  }, [state, reproducirSilbato]);
+
+  if (state.status === "success" && !cambiandoCorreo) {
     return (
-      <div className="mt-8 rounded-md border border-emerald-300 bg-emerald-50 px-4 py-4 text-center dark:border-emerald-800 dark:bg-emerald-950">
-        <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200">
+      <div className="animar-subir mt-8 rounded-2xl border border-lima/35 bg-lima/[0.09] px-[22px] py-[22px] text-center">
+        <p className="text-[16px] font-bold text-lima-clara">
           Listo, revisa tu correo
         </p>
-        <p className="mt-1 text-sm text-emerald-700 dark:text-emerald-300">
-          Te mandamos un link para entrar. Puede demorar un par de minutos —
-          revisa también spam.
+        <p className="mt-1 text-[14px] text-tinta/62">
+          Te mandamos el link. Puede demorar un par de minutos — pega una
+          mirada al spam por si acaso.
         </p>
+        <button
+          type="button"
+          onClick={() => setCambiandoCorreo(true)}
+          className="boton-fantasma mt-4 px-[18px] py-[10px] text-[13px]"
+        >
+          Usar otro correo
+        </button>
       </div>
     );
   }
 
   return (
-    <form action={formAction} className="mt-8 space-y-4">
+    <form
+      action={formAction}
+      onSubmit={() => setCambiandoCorreo(false)}
+      className="mt-8 flex flex-col gap-[14px]"
+    >
       <div>
-        <label htmlFor="email" className="block text-sm font-medium">
+        <label
+          htmlFor="email"
+          className="font-mono text-[11px] tracking-[0.16em] text-tinta/50 uppercase"
+        >
           Correo
         </label>
         <input
@@ -39,23 +67,26 @@ export function LoginForm() {
           autoComplete="email"
           required
           placeholder="tu@correo.cl"
-          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2.5 text-base outline-none focus:border-emerald-600 dark:border-white/20"
+          className="mt-1 w-full rounded-[12px] border border-tinta/18 bg-white/[0.04] px-4 py-4 text-[17px] text-tinta outline-none focus:border-lima focus:bg-white/[0.07]"
         />
       </div>
 
       {state.status === "error" && (
-        <p className="text-sm text-red-700 dark:text-red-400">
-          {state.message}
-        </p>
+        <p className="text-[14px] text-rojo">{state.message}</p>
       )}
 
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-md bg-emerald-600 px-4 py-3 text-base font-medium text-white transition-opacity disabled:opacity-60"
+        className="boton-primario w-full px-4 py-[17px] text-[16px]"
       >
         {pending ? "Enviando..." : "Mandarme el link"}
       </button>
+
+      <p className="text-center text-[13px] text-tinta/40">
+        Solo los capitanes necesitan entrar. Los jugadores se anotan con el
+        link.
+      </p>
     </form>
   );
 }

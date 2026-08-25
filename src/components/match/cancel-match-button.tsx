@@ -24,7 +24,7 @@ export function CancelMatchButton({
         if (!confirma) return;
         startTransition(() => cancelMatch(teamId, matchId));
       }}
-      className="rounded-md border border-red-300 px-4 py-2.5 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-60 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
+      className="boton-peligro px-[18px] py-[12px] text-[14px]"
     >
       {pending ? "Cancelando..." : "Cancelar partido"}
     </button>

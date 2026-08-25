@@ -2,12 +2,8 @@
 
 import { useMemo, useSyncExternalStore } from "react";
 
-type Restante = {
-  dias: number;
-  horas: number;
-  minutos: number;
-  segundos: number;
-} | null;
+/** Segundos restantes, o null si ya venció. */
+type Restante = number | null;
 
 /**
  * Arma la "tienda" externa que useSyncExternalStore necesita: algo con
@@ -19,32 +15,18 @@ type Restante = {
  *
  * getSnapshot() está memoizado a propósito: si lo llaman dos veces en el
  * mismo segundo (React lo hace para chequear consistencia), tiene que
- * devolver el mismo objeto — si devolviera uno nuevo cada vez, React
- * pensaría que el valor cambió en cada render y avisaría por consola.
+ * devolver el mismo valor — si devolviera un número recién calculado cada
+ * vez daría lo mismo (son primitivos), pero para null sí importa mantener
+ * la misma referencia lógica de "ya venció".
  */
 function crearAlmacenDeCuentaRegresiva(objetivo: number) {
-  let ultimoBucket: number | null | undefined;
-  let ultimoSnapshot: Restante;
+  let ultimoBucket: Restante | undefined;
 
   function getSnapshot(): Restante {
     const diff = objetivo - Date.now();
     const bucket = diff <= 0 ? null : Math.floor(diff / 1000);
-
-    if (bucket === ultimoBucket) {
-      return ultimoSnapshot;
-    }
-
     ultimoBucket = bucket;
-    ultimoSnapshot =
-      bucket === null
-        ? null
-        : {
-            dias: Math.floor(bucket / 86_400),
-            horas: Math.floor((bucket % 86_400) / 3_600),
-            minutos: Math.floor((bucket % 3_600) / 60),
-            segundos: bucket % 60,
-          };
-    return ultimoSnapshot;
+    return ultimoBucket;
   }
 
   function subscribe(avisar: () => void) {
@@ -62,7 +44,26 @@ function getServerSnapshot(): undefined {
   return undefined;
 }
 
-export function Countdown({ hastaIso }: { hastaIso: string }) {
+function pad(n: number): string {
+  return n.toString().padStart(2, "0");
+}
+
+// Clases completas (no interpoladas): Tailwind solo genera la utilidad
+// cuyo texto literal encuentra en el código.
+const TAMANOS = {
+  36: "text-[36px]", // vista pública — la pantalla del jugador
+  34: "text-[34px]", // vista del capitán — cabecera de cartel
+} as const;
+
+export function Countdown({
+  hastaIso,
+  mensajeVencido = "El plazo para confirmar ya venció.",
+  tamano = 36,
+}: {
+  hastaIso: string;
+  mensajeVencido?: string;
+  tamano?: keyof typeof TAMANOS;
+}) {
   const objetivo = new Date(hastaIso).getTime();
   const almacen = useMemo(
     () => crearAlmacenDeCuentaRegresiva(objetivo),
@@ -75,29 +76,31 @@ export function Countdown({ hastaIso }: { hastaIso: string }) {
     getServerSnapshot,
   );
 
-  if (restante === undefined) {
-    return <p className="text-sm opacity-60">Calculando el tiempo restante…</p>;
-  }
+  const claseTamano = TAMANOS[tamano];
 
-  if (restante === null) {
+  if (restante === undefined) {
     return (
-      <p className="text-sm font-medium text-red-700 dark:text-red-400">
-        El plazo para confirmar ya venció.
+      <p
+        className={`animar-respirar font-mono ${claseTamano} leading-none font-semibold tracking-[-0.02em] text-tinta/40`}
+      >
+        --:--:--
       </p>
     );
   }
 
-  const partes: string[] = [];
-  if (restante.dias > 0) partes.push(`${restante.dias} d`);
-  if (restante.dias > 0 || restante.horas > 0) partes.push(`${restante.horas} h`);
-  partes.push(`${restante.minutos} min`);
-  if (restante.dias === 0 && restante.horas === 0) {
-    partes.push(`${restante.segundos} s`);
+  if (restante === null) {
+    return <p className="text-sm font-medium text-rojo">{mensajeVencido}</p>;
   }
 
+  const horas = Math.floor(restante / 3600);
+  const minutos = Math.floor((restante % 3600) / 60);
+  const segundos = restante % 60;
+
   return (
-    <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-      Quedan {partes.join(" ")} para confirmar
+    <p
+      className={`animar-respirar font-mono ${claseTamano} leading-none font-semibold tracking-[-0.02em] text-lima`}
+    >
+      {pad(horas)}:{pad(minutos)}:{pad(segundos)}
     </p>
   );
 }

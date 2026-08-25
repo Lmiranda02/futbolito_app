@@ -27,6 +27,34 @@ export function formatearFechaChile(
 }
 
 /**
+ * date-fns en español devuelve el día de la semana en minúscula
+ * ("sábado"); el diseño lo quiere como encabezado ("Sábado").
+ */
+function capitalizar(texto: string): string {
+  return texto.length === 0 ? texto : texto[0]!.toUpperCase() + texto.slice(1);
+}
+
+/**
+ * Fecha corta al estilo "marcador de cancha": "Sábado 27 de agosto · 21:00".
+ * Es la que usan las pantallas del rediseño (ver design_handoff_arma_tu_partido);
+ * formatearFechaChile() sigue igual para el resto.
+ */
+export function formatearFechaCorta(fechaUtc: Date): string {
+  return capitalizar(
+    formatearFechaChile(fechaUtc, "EEEE d 'de' MMMM '·' HH:mm"),
+  );
+}
+
+/**
+ * Versión todavía más corta, solo día de la semana y hora: "Sábado 21:00".
+ * Para contextos chicos donde ya se sabe la fecha completa por otro lado
+ * (por ejemplo, la tarjeta de un equipo en "Mis equipos").
+ */
+export function formatearDiaHora(fechaUtc: Date): string {
+  return capitalizar(formatearFechaChile(fechaUtc, "EEEE HH:mm"));
+}
+
+/**
  * El camino inverso de horaLocalChileAUtc(): a partir de una fecha UTC de
  * la base, arma el string que espera un <input type="datetime-local"> para
  * precargarlo con la hora de Santiago (por ejemplo, al editar un partido).

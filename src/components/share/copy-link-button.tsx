@@ -2,8 +2,17 @@
 
 import { useState } from "react";
 
-export function CopyLinkButton({ text }: { text: string }) {
+import { useSound } from "@/components/sound/sound-provider";
+
+export function CopyLinkButton({
+  text,
+  className = "",
+}: {
+  text: string;
+  className?: string;
+}) {
   const [estado, setEstado] = useState<"idle" | "copiado" | "error">("idle");
+  const { reproducirClick } = useSound();
 
   return (
     <button
@@ -12,12 +21,13 @@ export function CopyLinkButton({ text }: { text: string }) {
         try {
           await navigator.clipboard.writeText(text);
           setEstado("copiado");
+          reproducirClick();
         } catch {
           setEstado("error");
         }
-        setTimeout(() => setEstado("idle"), 2000);
+        setTimeout(() => setEstado("idle"), 1800);
       }}
-      className="rounded-md bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white"
+      className={`boton-primario px-[20px] py-[13px] text-[14px] ${className}`}
     >
       {estado === "copiado"
         ? "¡Copiado!"

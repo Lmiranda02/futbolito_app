@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { CreateMatchForm } from "@/components/match/create-match-form";
 import { requireTeamOwnership } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = { title: "Nuevo partido" };
 
@@ -12,18 +13,24 @@ export default async function NuevoPartidoPage(
   const { teamId } = await props.params;
   const { team } = await requireTeamOwnership(teamId);
 
+  const plantelCount = await prisma.teamMember.count({
+    where: { teamId: team.id, status: "APPROVED" },
+  });
+
   return (
-    <div className="mx-auto max-w-md">
+    <div className="mx-auto w-full max-w-[560px]">
       <Link
         href={`/dashboard/equipos/${team.id}`}
-        className="text-sm opacity-60 hover:underline"
+        className="font-mono text-[12px] text-tinta/50 hover:text-tinta/70"
       >
         ← {team.name}
       </Link>
-      <h1 className="mt-2 text-xl font-semibold">Convoca un partido</h1>
-      <p className="mt-2 text-sm opacity-70">
-        Se va a armar una asistencia pendiente para cada jugador que ya esté
-        en el plantel.
+      <h1 className="animar-subir mt-3 text-[38px] font-extrabold tracking-[-0.03em] text-tinta">
+        Convoca un partido
+      </h1>
+      <p className="animar-subir mt-2 max-w-[46ch] text-[15px] text-tinta/60">
+        Al guardar le queda una asistencia pendiente a cada uno de los{" "}
+        {plantelCount} del plantel. Después solo pasas el link.
       </p>
 
       <CreateMatchForm teamId={team.id} />

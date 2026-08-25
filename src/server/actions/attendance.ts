@@ -11,7 +11,9 @@ import { checkRateLimit } from "@/lib/rate-limit";
 const respuestaSchema = z.object({
   matchId: z.string().trim().min(1),
   teamMemberId: z.string().trim().min(1),
-  status: z.enum(["CONFIRMED", "DECLINED"]),
+  // PENDING es el "deshacer": tocar de nuevo el botón ya activo vuelve a
+  // sin responder (ver AttendanceList — el toggle-off del diseño).
+  status: z.enum(["CONFIRMED", "DECLINED", "PENDING"]),
 });
 
 export type AttendanceState = {
@@ -41,7 +43,7 @@ async function obtenerIp(): Promise<string> {
 export async function responderAsistencia(
   matchId: string,
   teamMemberId: string,
-  nuevoEstado: "CONFIRMED" | "DECLINED",
+  nuevoEstado: "CONFIRMED" | "DECLINED" | "PENDING",
 ): Promise<AttendanceState> {
   const ip = await obtenerIp();
   const dentroDelLimite = await checkRateLimit(`asistencia:${ip}`, {
@@ -93,7 +95,12 @@ export async function responderAsistencia(
 
   await prisma.attendance.update({
     where: { id: attendance.id },
-    data: { status: parsed.data.status, respondedAt: new Date() },
+    data: {
+      status: parsed.data.status,
+      // "Sin responder" no es una respuesta: no le corresponde marca de
+      // hora, igual que cuando nace la asistencia.
+      respondedAt: parsed.data.status === "PENDING" ? null : new Date(),
+    },
   });
 
   // La misma respuesta la ve el jugador en esta página pública y el

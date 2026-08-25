@@ -1,26 +1,241 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Fondo — capas del "nocturno de cancha de barrio" */
+  --color-noche: #0a0f0c;
+  --color-cancha: #0d1410;
+  --color-cancha-honda: #080c09;
+  --color-panel: #13211a;
+  --color-panel-bajo: #0b120e;
+
+  /* Texto — nunca blanco ni negro puro */
+  --color-tinta: #e8f0e6;
+  --color-tinta-oscura: #08110b;
+
+  /* Acento — solo lima y ámbar en toda la app. El rojo es exclusivo de cancelar. */
+  --color-lima: oklch(0.8 0.17 138);
+  --color-lima-clara: oklch(0.86 0.15 138);
+  --color-lima-honda: oklch(0.62 0.15 150);
+  --color-ambar: oklch(0.82 0.16 75);
+  --color-ambar-claro: oklch(0.86 0.14 75);
+  --color-rojo: oklch(0.72 0.17 25);
+  --color-cielo: oklch(0.78 0.13 200);
+
+  /* Alias de las utilidades base de Tailwind (bg-background, text-foreground) */
+  --color-background: var(--color-noche);
+  --color-foreground: var(--color-tinta);
+
+  --font-sans: var(--font-archivo);
+  --font-mono: var(--font-ibm-plex-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  /* La app es siempre oscura: que los controles nativos (fecha, scrollbar) sigan el tono */
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  min-height: 100vh;
+  background:
+    radial-gradient(1100px 520px at 50% -12%, rgba(200, 255, 180, 0.16), transparent 70%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.022) 0 46px, rgba(0, 0, 0, 0) 46px 92px),
+    linear-gradient(180deg, var(--color-cancha) 0%, var(--color-cancha-honda) 60%, var(--color-noche) 100%);
+  color: var(--color-tinta);
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Escudo — único elemento gráfico propio de la app (ver TeamCrest) */
+.escudo {
+  display: flex;
+  flex-shrink: 0;
+  align-items: flex-start;
+  justify-content: center;
+  clip-path: polygon(0 0, 100% 0, 100% 62%, 50% 100%, 0 62%);
+}
+
+.escudo-lima {
+  background: linear-gradient(160deg, var(--color-lima), var(--color-lima-honda));
+}
+
+.escudo-ambar {
+  background: linear-gradient(160deg, var(--color-ambar), oklch(0.64 0.14 60));
+}
+
+.escudo-cielo {
+  background: linear-gradient(160deg, var(--color-cielo), oklch(0.6 0.12 215));
+}
+
+/* Botones — el tratamiento (color/borde/sombra) es compartido; el
+   tamaño (padding, texto) va aparte, por instancia, como utilidad
+   Tailwind normal. */
+.boton-primario {
+  border-radius: 12px;
+  background: var(--color-lima);
+  color: var(--color-tinta-oscura);
+  font-weight: 700;
+  box-shadow: 0 10px 26px -12px oklch(0.8 0.17 138 / 0.7);
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.boton-primario:hover:not(:disabled) {
+  background: var(--color-lima-clara);
+}
+
+.boton-primario:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.boton-fantasma {
+  border-radius: 12px;
+  border: 1px solid rgba(232, 240, 230, 0.18);
+  background: transparent;
+  color: var(--color-tinta);
+  font-weight: 600;
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.boton-fantasma:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(232, 240, 230, 0.3);
+}
+
+.boton-fantasma:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.boton-peligro {
+  border-radius: 12px;
+  border: 1px solid oklch(0.72 0.17 25 / 0.35);
+  background: oklch(0.72 0.17 25 / 0.1);
+  color: var(--color-rojo);
+  font-weight: 600;
+  transition: background-color 0.16s ease;
+}
+
+.boton-peligro:hover:not(:disabled) {
+  background: oklch(0.72 0.17 25 / 0.18);
+}
+
+.boton-peligro:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Cabecera de cartel — cabecera del partido en la vista del capitán */
+.cartel-partido {
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.03) 0 40px, transparent 40px 80px),
+    linear-gradient(165deg, var(--color-panel), var(--color-panel-bajo));
+}
+
+/* La cancha — panel decorativo de la landing (columna derecha del hero) */
+.cancha-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.028) 0 34px, transparent 34px 68px),
+    linear-gradient(170deg, #12201a 0%, #0c140f 100%);
+}
+
+.cancha-hero .linea-perimetro {
+  position: absolute;
+  inset: 26px;
+  border: 2px solid rgba(232, 240, 230, 0.16);
+  border-radius: 6px;
+}
+
+.cancha-hero .linea-medio {
+  position: absolute;
+  top: 26px;
+  bottom: 26px;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: rgba(232, 240, 230, 0.16);
+}
+
+.cancha-hero .linea-circulo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 112px;
+  height: 112px;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(232, 240, 230, 0.16);
+  border-radius: 50%;
+}
+
+/* Animaciones compartidas — ver README de design_handoff_arma_tu_partido */
+@keyframes subir {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes barrido {
+  0% {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  100% {
+    transform: translateX(320%) skewX(-18deg);
+  }
+}
+
+@keyframes respirar {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+.animar-subir {
+  animation: subir 0.6s ease both;
+}
+
+.animar-aparecer {
+  animation: aparecer 0.4s ease both;
+}
+
+.animar-barrido {
+  animation: barrido 3.4s ease-in-out 1.2s infinite;
+}
+
+.animar-respirar {
+  animation: respirar 2.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animar-subir {
+    animation: aparecer 0.4s ease both;
+  }
+
+  .animar-barrido,
+  .animar-respirar {
+    animation: none;
+  }
 }
