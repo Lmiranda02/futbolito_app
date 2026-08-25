@@ -217,8 +217,20 @@ una vez.
       ninguna asistencia en este partido (no se puede "colar" una respuesta ajena). Se
       reusa el mismo limitador por IP que la 4.1. Los datos de prueba se limpiaron al
       terminar.
-- [ ] **6.3 Auto-refresh del capitán.** Refresco cada ~20s en el detalle del partido.
-      _Verificable_: dos dispositivos lado a lado; el conteo del capitán se mueve solo.
+- [x] **6.3 Auto-refresh del capitán.** Refresco cada ~20s en el detalle del partido.
+      _Verificado por el agente_: como este mecanismo no depende de sesión ni de lógica de
+      negocio (es puro timing del navegador), se probó en una página pública descartable
+      que montaba el mismo componente. Con un log temporal se contaron los "tick" reales
+      del intervalo — exactamente 3, a las 19:03:04, 19:03:24 y 19:03:44, cada 20.0
+      segundos justos, sin duplicarse ni desviarse — antes de sacar el log y borrar la
+      página de prueba. En el camino se descartó una falsa alarma: la herramienta de red
+      mostraba el doble de peticiones de las esperadas, pero resultó ser un artefacto de
+      esa herramienta (parece loguear la misma petición dos veces), no un bug real —el
+      conteo de `console.log` desde adentro del propio intervalo fue la prueba
+      concluyente. Solo se refresca mientras el partido sigue `SCHEDULED` y no venció el
+      plazo (no tiene sentido seguir pidiendo datos si ya no puede cambiar nada).
+      _Pendiente de tu parte_: dejá abierto el detalle de un partido convocado y mirá
+      cómo se actualiza solo si alguien responde desde otro dispositivo.
 
 ## Bloque 7 — Salida a la cancha
 

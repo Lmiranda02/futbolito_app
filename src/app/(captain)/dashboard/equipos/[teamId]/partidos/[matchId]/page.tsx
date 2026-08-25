@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { AutoRefresh } from "@/components/match/auto-refresh";
 import { CancelMatchButton } from "@/components/match/cancel-match-button";
 import { CopyLinkButton } from "@/components/share/copy-link-button";
 import { InviteQr } from "@/components/share/invite-qr";
 import { requireMatchOwnership } from "@/lib/auth";
-import { formatearFechaChile } from "@/lib/dates";
+import { formatearFechaChile, yaPaso } from "@/lib/dates";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = { title: "Partido" };
@@ -41,8 +42,16 @@ export default async function PartidoPage(
     { titulo: "Pendientes", items: pendientes },
   ];
 
+  // Ya no tiene sentido seguir refrescando solo si no puede cambiar nada:
+  // ni un partido cancelado ni uno con el plazo vencido van a sumar
+  // respuestas nuevas.
+  const puedeSeguirCambiando =
+    match.status === "SCHEDULED" && !yaPaso(match.confirmDeadline);
+
   return (
     <div className="mx-auto max-w-md">
+      {puedeSeguirCambiando && <AutoRefresh />}
+
       <Link
         href={`/dashboard/equipos/${team.id}`}
         className="text-sm opacity-60 hover:underline"
