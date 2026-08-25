@@ -32,10 +32,10 @@ Decisiones de base tomadas al planificar (ver `CLAUDE.md` para el alcance por fa
 
 ## Bloque 1 — Modelo de datos
 
-- [ ] **1.1 Schema y primera migración.** `prisma/schema.prisma` completo (6 modelos, 4
+- [x] **1.1 Schema y primera migración.** `prisma/schema.prisma` completo (6 modelos, 4
       enums, índices) + `prisma migrate dev` + `prisma generate`.
       _Verificable_: las tablas se ven en el Table Editor de Supabase.
-- [ ] **1.2 Verificar el cierre de la Data API.** Al crear el proyecto se dejó la Data
+- [x] **1.2 Verificar el cierre de la Data API.** Al crear el proyecto se dejó la Data
       API apagada y el RLS automático encendido, así que esto pasó de "implementar" a
       "confirmar": chequear que las tablas nuevas nazcan con RLS activo y que la API REST
       no exponga nada.

@@ -1,6 +1,9 @@
-// Modelo de datos de "Arma tu Partido".
-// La URL de conexión no vive acá: se configura en prisma.config.ts, que lee
-// las variables de entorno.
+// Modelo de datos de "Arma tu Partido" — Fase 1.
+//
+// La URL de conexión no vive acá: el CLI la toma de prisma.config.ts y la app
+// la toma de src/lib/prisma.ts. Ver ROADMAP.md para el alcance de cada fase.
+//
+// Todas las fechas se guardan en UTC y se muestran en America/Santiago.
 
 generator client {
   provider = "prisma-client"
@@ -11,4 +14,168 @@ datasource db {
   provider = "postgresql"
 }
 
-// Los modelos se agregan en la tarea 1.1 del ROADMAP.
+enum MembershipStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum MemberRole {
+  CAPTAIN
+  PLAYER
+}
+
+enum MatchStatus {
+  SCHEDULED
+  CANCELLED
+  PLAYED
+}
+
+enum AttendanceStatus {
+  PENDING
+  CONFIRMED
+  DECLINED
+}
+
+/// Capitán: la única persona que se loguea.
+/// El id es el mismo que el del usuario en Supabase Auth, para no tener dos
+/// identidades de la misma persona dando vueltas.
+model Captain {
+  id        String   @id @db.Uuid
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+
+  teams Team[]
+
+  @@map("captains")
+}
+
+model Team {
+  id String @id @default(cuid())
+
+  name      String
+  captainId String  @db.Uuid
+  captain   Captain @relation(fields: [captainId], references: [id], onDelete: Cascade)
+
+  /// Código corto que va en el link de invitación: /unirse/<inviteCode>
+  inviteCode String @unique
+  /// Permite "regenerar link" si el código se filtra, sin borrar el equipo.
+  inviteActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members TeamMember[]
+  matches Match[]
+
+  @@index([captainId])
+  @@map("teams")
+}
+
+/// Jugador: persona sin cuenta, identificada por su teléfono.
+/// Existe una sola vez aunque juegue en varios equipos.
+model Player {
+  id String @id @default(cuid())
+
+  name String
+  /// Normalizado antes de guardar: solo dígitos, con código de país (56).
+  /// Sin normalizar, el @unique no sirve: "9 8765 4321" y "+56987654321"
+  /// serían dos personas distintas.
+  phone String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships TeamMember[]
+
+  @@map("players")
+}
+
+/// "Este jugador en este equipo". Es la pieza central del modelo: el estado de
+/// pertenencia vive acá, no en Player, porque el mismo jugador puede estar
+/// aprobado en un equipo y pendiente en otro.
+model TeamMember {
+  id String @id @default(cuid())
+
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  playerId String
+  player   Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  status MembershipStatus @default(PENDING)
+  /// CAPTAIN marca la membresía del capitán, que también juega.
+  role     MemberRole @default(PLAYER)
+  /// Apodo dentro de este equipo. El nombre "real" vive en Player.
+  nickname String?
+
+  requestedAt DateTime  @default(now())
+  decidedAt   DateTime?
+
+  attendances Attendance[]
+
+  /// Un jugador no puede pedir entrar dos veces al mismo equipo.
+  @@unique([teamId, playerId])
+  /// Cubre "pendientes de este equipo" y "plantel aprobado".
+  @@index([teamId, status])
+  @@map("team_members")
+}
+
+model Match {
+  id String @id @default(cuid())
+
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  /// Id impredecible que va en el link que se comparte: /partido/<publicId>
+  publicId String @unique
+
+  /// Rival, texto libre. En Fase 1 no hay equipo rival en la base.
+  opponent String?
+  venue    String
+  address  String?
+
+  /// En UTC. Se convierte a America/Santiago al mostrar.
+  kickoffAt DateTime
+  /// Hasta cuándo se puede confirmar asistencia. También en UTC.
+  confirmDeadline DateTime
+
+  /// Cupo de jugadores, para poder mostrar "faltan 3". Opcional.
+  slots Int?
+  notes String?
+
+  status MatchStatus @default(SCHEDULED)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  attendances Attendance[]
+
+  /// Cubre "próximos partidos del equipo".
+  @@index([teamId, kickoffAt])
+  @@map("matches")
+}
+
+/// La respuesta de un miembro del plantel a un partido.
+/// Apunta a TeamMember y no a Player para garantizar que quien responde
+/// pertenece al equipo dueño del partido.
+model Attendance {
+  id String @id @default(cuid())
+
+  matchId String
+  match   Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  teamMemberId String
+  teamMember   TeamMember @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+
+  status      AttendanceStatus @default(PENDING)
+  respondedAt DateTime?
+  updatedAt   DateTime         @updatedAt
+
+  /// Una sola respuesta por jugador por partido.
+  @@unique([matchId, teamMemberId])
+  /// Cubre los contadores del capitán (confirmados / no van / pendientes).
+  @@index([matchId, status])
+  @@map("attendances")
+}
