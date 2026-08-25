@@ -25,7 +25,7 @@ Decisiones de base tomadas al planificar (ver `CLAUDE.md` para el alcance por fa
       y las claves. Armar `.env.local` y `.env.example` con las 5 variables, y cargarlas
       también en Vercel.
       _Verificable_: `.env.example` está commiteado, `.env.local` no aparece en `git status`.
-- [ ] **0.4 Conectar Prisma + healthcheck.** Instalar Prisma, `src/lib/prisma.ts` singleton,
+- [x] **0.4 Conectar Prisma + healthcheck.** Instalar Prisma, `src/lib/prisma.ts` singleton,
       y una ruta `/api/health` que hace un `SELECT 1`.
       _Verificable_: `/api/health` responde ok **en local y en la URL de Vercel** — eso
       prueba que el pooler funciona desde serverless, que es donde suele fallar.
@@ -35,7 +35,10 @@ Decisiones de base tomadas al planificar (ver `CLAUDE.md` para el alcance por fa
 - [ ] **1.1 Schema y primera migración.** `prisma/schema.prisma` completo (6 modelos, 4
       enums, índices) + `prisma migrate dev` + `prisma generate`.
       _Verificable_: las tablas se ven en el Table Editor de Supabase.
-- [ ] **1.2 RLS deny-all.** Activar RLS en las tablas de la app sin políticas públicas.
+- [ ] **1.2 Verificar el cierre de la Data API.** Al crear el proyecto se dejó la Data
+      API apagada y el RLS automático encendido, así que esto pasó de "implementar" a
+      "confirmar": chequear que las tablas nuevas nazcan con RLS activo y que la API REST
+      no exponga nada.
       _Verificable_: pegarle a la API REST de Supabase con la anon key no devuelve datos.
 - [ ] **1.3 Seed de desarrollo.** Un capitán, un equipo, 6 jugadores (2 pendientes), un
       partido con sus asistencias. Script `npm run db:seed`.
