@@ -3,7 +3,7 @@ import "server-only";
 import { cache } from "react";
 import { notFound, redirect } from "next/navigation";
 
-import type { Captain, Team } from "@/generated/prisma/client";
+import type { Captain, Match, Team } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 
@@ -73,5 +73,26 @@ export const requireTeamOwnership = cache(
     }
 
     return { captain, team };
+  },
+);
+
+/**
+ * Igual que requireTeamOwnership(), un nivel más abajo: para páginas que
+ * operan sobre UN partido puntual. 404 tanto si el partido no existe como
+ * si es de otro equipo — mismo motivo que arriba.
+ */
+export const requireMatchOwnership = cache(
+  async (
+    teamId: string,
+    matchId: string,
+  ): Promise<{ captain: Captain; team: Team; match: Match }> => {
+    const { captain, team } = await requireTeamOwnership(teamId);
+    const match = await prisma.match.findUnique({ where: { id: matchId } });
+
+    if (!match || match.teamId !== team.id) {
+      notFound();
+    }
+
+    return { captain, team, match };
   },
 );

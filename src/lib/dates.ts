@@ -25,3 +25,12 @@ export function formatearFechaChile(
 ): string {
   return formatInTimeZone(fechaUtc, ZONA_CHILE, patron, { locale: es });
 }
+
+/**
+ * El camino inverso de horaLocalChileAUtc(): a partir de una fecha UTC de
+ * la base, arma el string que espera un <input type="datetime-local"> para
+ * precargarlo con la hora de Santiago (por ejemplo, al editar un partido).
+ */
+export function utcADatetimeLocalChile(fechaUtc: Date): string {
+  return formatInTimeZone(fechaUtc, ZONA_CHILE, "yyyy-MM-dd'T'HH:mm");
+}

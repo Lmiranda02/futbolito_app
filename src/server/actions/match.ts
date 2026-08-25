@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { requireTeamOwnership } from "@/lib/auth";
+import { requireMatchOwnership, requireTeamOwnership } from "@/lib/auth";
 import { generarPublicId } from "@/lib/codes";
 import { horaLocalChileAUtc } from "@/lib/dates";
 import { prisma } from "@/lib/prisma";
@@ -22,7 +22,10 @@ const fechaSchema = z
     return fecha;
   });
 
-const crearPartidoSchema = z
+// Compartido entre crear y editar: las mismas reglas de negocio, en un
+// solo lugar. Si algún día cambia "el límite tiene que ser antes del
+// partido", se cambia acá y aplica a los dos formularios.
+const partidoCamposSchema = z
   .object({
     venue: z
       .string()
@@ -73,11 +76,27 @@ const crearPartidoSchema = z
 
 type Campo = "venue" | "opponent" | "slots" | "kickoffAt" | "confirmDeadline";
 
-export type CrearPartidoState = {
+export type PartidoFormState = {
   status: "idle" | "error";
   message?: string;
   fieldErrors?: Partial<Record<Campo, string>>;
 };
+
+// Alias para no romper el nombre que ya usa create-match-form.tsx.
+export type CrearPartidoState = PartidoFormState;
+
+function agruparErrores(
+  error: z.ZodError,
+): PartidoFormState["fieldErrors"] {
+  const fieldErrors: PartidoFormState["fieldErrors"] = {};
+  for (const issue of error.issues) {
+    const campo = issue.path[0];
+    if (typeof campo === "string" && !(campo in fieldErrors)) {
+      fieldErrors[campo as Campo] = issue.message;
+    }
+  }
+  return fieldErrors;
+}
 
 /**
  * Convoca un partido nuevo. En la misma transacción, crea una asistencia
@@ -92,7 +111,7 @@ export async function crearPartido(
 ): Promise<CrearPartidoState> {
   const { team } = await requireTeamOwnership(teamId);
 
-  const parsed = crearPartidoSchema.safeParse({
+  const parsed = partidoCamposSchema.safeParse({
     venue: formData.get("venue"),
     opponent: formData.get("opponent"),
     slots: formData.get("slots"),
@@ -101,14 +120,7 @@ export async function crearPartido(
   });
 
   if (!parsed.success) {
-    const fieldErrors: CrearPartidoState["fieldErrors"] = {};
-    for (const issue of parsed.error.issues) {
-      const campo = issue.path[0];
-      if (typeof campo === "string" && !(campo in fieldErrors)) {
-        fieldErrors[campo as Campo] = issue.message;
-      }
-    }
-    return { status: "error", fieldErrors };
+    return { status: "error", fieldErrors: agruparErrores(parsed.error) };
   }
 
   const { venue, opponent, slots, kickoffAt, confirmDeadline } = parsed.data;
@@ -167,5 +179,67 @@ export async function crearPartido(
   }
 
   revalidatePath(`/dashboard/equipos/${team.id}`);
-  redirect(`/dashboard/equipos/${team.id}`);
+  redirect(`/dashboard/equipos/${team.id}/partidos/${match.id}`);
+}
+
+/**
+ * Edita los datos de un partido ya convocado. No toca las asistencias: son
+ * independientes de estos campos (venue, horario, etc.), así que editar el
+ * partido no borra ni recrea nada de lo que ya respondieron los jugadores.
+ */
+export async function updateMatch(
+  teamId: string,
+  matchId: string,
+  _prevState: PartidoFormState,
+  formData: FormData,
+): Promise<PartidoFormState> {
+  const { team, match } = await requireMatchOwnership(teamId, matchId);
+
+  if (match.status !== "SCHEDULED") {
+    return {
+      status: "error",
+      message: "Este partido ya no se puede editar.",
+    };
+  }
+
+  const parsed = partidoCamposSchema.safeParse({
+    venue: formData.get("venue"),
+    opponent: formData.get("opponent"),
+    slots: formData.get("slots"),
+    kickoffAt: formData.get("kickoffAt"),
+    confirmDeadline: formData.get("confirmDeadline"),
+  });
+
+  if (!parsed.success) {
+    return { status: "error", fieldErrors: agruparErrores(parsed.error) };
+  }
+
+  const { venue, opponent, slots, kickoffAt, confirmDeadline } = parsed.data;
+
+  await prisma.match.update({
+    where: { id: match.id },
+    data: { venue, opponent, slots, kickoffAt, confirmDeadline },
+  });
+
+  revalidatePath(`/dashboard/equipos/${team.id}/partidos/${match.id}`);
+  redirect(`/dashboard/equipos/${team.id}/partidos/${match.id}`);
+}
+
+/**
+ * Cancela un partido. No borra ni cambia las asistencias que ya existan
+ * (quedan como quedaron, a modo de historial); solo marca el partido como
+ * CANCELLED, con lo que deja de aparecer en "próximos partidos".
+ */
+export async function cancelMatch(teamId: string, matchId: string): Promise<void> {
+  const { team, match } = await requireMatchOwnership(teamId, matchId);
+
+  if (match.status !== "SCHEDULED") return;
+
+  await prisma.match.update({
+    where: { id: match.id },
+    data: { status: "CANCELLED" },
+  });
+
+  revalidatePath(`/dashboard/equipos/${team.id}`);
+  revalidatePath(`/dashboard/equipos/${team.id}/partidos/${match.id}`);
 }

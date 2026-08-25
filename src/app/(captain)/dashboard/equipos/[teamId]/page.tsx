@@ -82,16 +82,18 @@ export default async function EquipoPage(
         ) : (
           <ul className="mt-3 space-y-2">
             {proximosPartidos.map((match) => (
-              <li
-                key={match.id}
-                className="rounded-lg border border-black/10 px-4 py-3 dark:border-white/10"
-              >
-                <p className="font-medium">
-                  {match.opponent ? `vs. ${match.opponent}` : "Partido"}
-                </p>
-                <p className="text-sm opacity-70">
-                  {formatearFechaChile(match.kickoffAt)} — {match.venue}
-                </p>
+              <li key={match.id}>
+                <Link
+                  href={`/dashboard/equipos/${team.id}/partidos/${match.id}`}
+                  className="block rounded-lg border border-black/10 px-4 py-3 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/5"
+                >
+                  <p className="font-medium">
+                    {match.opponent ? `vs. ${match.opponent}` : "Partido"}
+                  </p>
+                  <p className="text-sm opacity-70">
+                    {formatearFechaChile(match.kickoffAt)} — {match.venue}
+                  </p>
+                </Link>
               </li>
             ))}
           </ul>

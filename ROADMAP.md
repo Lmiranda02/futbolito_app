@@ -172,11 +172,20 @@ una vez.
       La ruta de convocatoria sin sesión redirige a `/login`.
       _Pendiente de tu parte_: entrá a un equipo con plantel aprobado y convocá un
       partido de verdad desde la interfaz.
-- [ ] **5.2 Detalle del partido (capitán).** Contadores (confirmados / no van /
+- [x] **5.2 Detalle del partido (capitán).** Contadores (confirmados / no van /
       pendientes), lista agrupada por estado, link del partido con botón copiar + QR,
       y editar/cancelar partido.
-      _Verificable_: la página refleja el estado real y el link copiado abre la vista
-      pública.
+      _Verificado por el agente_ a nivel de base de datos (con 2 capitanes y 3 asistencias
+      de prueba, una de cada estado): los contadores agrupan bien (1/1/1); un capitán no
+      puede ver el partido de otro (mismo 404 que uno inventado); editar actualiza los
+      campos SIN tocar las asistencias existentes (siguen siendo 3); cancelar marca
+      CANCELLED sin tocar las asistencias tampoco (quedan como historial) y el partido
+      deja de aparecer en la consulta de "próximos partidos". También se probó el
+      round-trip completo de la fecha: UTC de la base → valor para precargar el
+      `datetime-local` del formulario de edición → UTC de nuevo, exactos.
+      `crearPartido` ahora redirige al detalle del partido recién creado, no al equipo.
+      _Pendiente de tu parte_: entrá al detalle de un partido, probá copiar el link,
+      editar los datos, y cancelarlo.
 
 ## Bloque 6 — Confirmación del jugador
 
