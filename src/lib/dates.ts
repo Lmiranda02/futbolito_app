@@ -34,3 +34,14 @@ export function formatearFechaChile(
 export function utcADatetimeLocalChile(fechaUtc: Date): string {
   return formatInTimeZone(fechaUtc, ZONA_CHILE, "yyyy-MM-dd'T'HH:mm");
 }
+
+/**
+ * ¿Ya pasó esta fecha? Envuelto en su propia función (en vez de comparar
+ * contra `Date.now()` suelto adentro de un componente) porque ESLint
+ * marca `Date.now()` como una llamada "impura" dentro del cuerpo de un
+ * componente de servidor. De paso, centraliza en un solo lugar esta
+ * comparación, que si no quedaría repetida en cada lugar que la necesita.
+ */
+export function yaPaso(fechaUtc: Date): boolean {
+  return fechaUtc.getTime() <= Date.now();
+}

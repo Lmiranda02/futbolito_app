@@ -202,11 +202,21 @@ una vez.
       (el punto más delicado de esta tarea: la cuenta regresiva usa useSyncExternalStore
       en vez de useState+useEffect, que es lo que evita ese error). noindex confirmado.
       Todos los datos de prueba se limpiaron al terminar.
-- [ ] **6.2 Voy / No voy.** Server action que valida partido `SCHEDULED` y
+- [x] **6.2 Voy / No voy.** Server action que valida partido `SCHEDULED` y
       `now < confirmDeadline`, actualiza la asistencia y revalida. Después del límite, solo
       lectura.
-      _Verificable_: confirmas desde el celular y el capitán ve el cambio; adelantando el
-      deadline en la base, los botones se bloquean.
+      _Verificado por el agente_, de punta a punta por la interfaz real (esta página es
+      pública): tocar "Voy" cambia el estado en la base al toque (confirmado el
+      `respondedAt`); volver a tocar "No voy" cambia de opinión sin problema; el botón
+      activo queda resaltado (probado en claro y en oscuro). Adelantando el
+      `confirmDeadline` al pasado en la base y recargando, los botones desaparecen y
+      queda de solo lectura con el último estado guardado. Segunda capa de defensa
+      confirmada aparte: aunque alguien deje la pestaña abierta desde antes del
+      vencimiento, la propia validación del servidor bloquea el intento sin tocar la
+      asistencia. También se probó que un `teamMemberId` de otro equipo no tiene
+      ninguna asistencia en este partido (no se puede "colar" una respuesta ajena). Se
+      reusa el mismo limitador por IP que la 4.1. Los datos de prueba se limpiaron al
+      terminar.
 - [ ] **6.3 Auto-refresh del capitán.** Refresco cada ~20s en el detalle del partido.
       _Verificable_: dos dispositivos lado a lado; el conteo del capitán se mueve solo.
 
