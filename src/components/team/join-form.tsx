@@ -35,12 +35,30 @@ export function JoinForm({ inviteCode }: { inviteCode: string }) {
           name="nombre"
           type="text"
           required
-          placeholder="Como quieras que te vean en el plantel"
+          placeholder="Nombre y apellido"
           className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-base outline-none focus:border-emerald-600 dark:border-white/20"
         />
         {state.fieldErrors?.nombre && (
           <p className="mt-1 text-sm text-red-700 dark:text-red-400">
             {state.fieldErrors.nombre}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="apodo" className="block text-sm font-medium">
+          Apodo <span className="font-normal opacity-60">(opcional)</span>
+        </label>
+        <input
+          id="apodo"
+          name="apodo"
+          type="text"
+          placeholder="Cómo te dicen en la cancha"
+          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-base outline-none focus:border-emerald-600 dark:border-white/20"
+        />
+        {state.fieldErrors?.apodo && (
+          <p className="mt-1 text-sm text-red-700 dark:text-red-400">
+            {state.fieldErrors.apodo}
           </p>
         )}
       </div>

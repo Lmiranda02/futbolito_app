@@ -14,6 +14,12 @@ const joinSchema = z.object({
     .trim()
     .min(2, "Tu nombre es muy corto.")
     .max(60, "Tu nombre es muy largo."),
+  apodo: z
+    .string()
+    .trim()
+    .max(30, "El apodo es muy largo.")
+    .optional()
+    .transform((valor) => (valor ? valor : undefined)),
   telefono: z
     .string()
     .trim()
@@ -30,7 +36,7 @@ const joinSchema = z.object({
     }),
 });
 
-type Campo = "nombre" | "telefono";
+type Campo = "nombre" | "telefono" | "apodo";
 
 export type JoinState = {
   status: "idle" | "error" | "success";
@@ -75,6 +81,7 @@ export async function joinTeam(
   const parsed = joinSchema.safeParse({
     inviteCode: formData.get("inviteCode"),
     nombre: formData.get("nombre"),
+    apodo: formData.get("apodo"),
     telefono: formData.get("telefono"),
   });
 
@@ -84,7 +91,7 @@ export async function joinTeam(
       const campo = issue.path[0];
       if (
         typeof campo === "string" &&
-        (campo === "nombre" || campo === "telefono") &&
+        (campo === "nombre" || campo === "telefono" || campo === "apodo") &&
         !(campo in fieldErrors)
       ) {
         fieldErrors[campo] = issue.message;
@@ -93,7 +100,7 @@ export async function joinTeam(
     return { status: "error", fieldErrors };
   }
 
-  const { inviteCode, nombre, telefono } = parsed.data;
+  const { inviteCode, nombre, apodo, telefono } = parsed.data;
 
   // Se vuelve a resolver el equipo acá, sin confiar en nada que no sea el
   // propio código: el capitán pudo haber regenerado el link entre que se
@@ -135,7 +142,12 @@ export async function joinTeam(
     // Estaba REJECTED: puede volver a pedir.
     await prisma.teamMember.update({
       where: { id: existente.id },
-      data: { status: "PENDING", requestedAt: new Date(), decidedAt: null },
+      data: {
+        status: "PENDING",
+        requestedAt: new Date(),
+        decidedAt: null,
+        nickname: apodo,
+      },
     });
     return {
       status: "success",
@@ -144,7 +156,7 @@ export async function joinTeam(
   }
 
   await prisma.teamMember.create({
-    data: { teamId: team.id, playerId: player.id, status: "PENDING" },
+    data: { teamId: team.id, playerId: player.id, status: "PENDING", nickname: apodo },
   });
 
   return {

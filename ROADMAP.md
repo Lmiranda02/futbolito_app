@@ -139,10 +139,22 @@ una vez.
       `decidedAt` se resetea). Límite de intentos por IP verificado por separado
       (3 permitidos, el 4to rechazado, se resetea cuando vence la ventana). Todos los
       datos de prueba se limpiaron al terminar.
-- [ ] **4.2 Aprobar o rechazar.** En la página del equipo: lista de pendientes con dos
+- [x] **4.2 Aprobar o rechazar.** En la página del equipo: lista de pendientes con dos
       botones, y el plantel aprobado abajo. Al aprobar, crear asistencias `PENDING` para
       los partidos futuros ya existentes.
-      _Verificable_: apruebas a uno y pasa de "pendientes" a "plantel" sin recargar a mano.
+      _Verificado por el agente_ a nivel de base de datos (mismos pasos que la server
+      action): aprobar cambia el estado y crea asistencias `PENDING` para los partidos
+      futuros con estado `SCHEDULED` — pero NO para uno pasado ni para uno cancelado
+      (se armaron los 4 casos a propósito para probarlo); aprobar dos veces no duplica
+      asistencias; rechazar deja la fila en `REJECTED` (no la borra, para que la
+      re-solicitud de la 4.1 siga funcionando).
+      _De paso_: se completó un hueco de la 4.1 — el formulario de inscripción no tenía
+      el campo de apodo opcional que sí estaba en el plan original. Agregado y probado
+      por la interfaz real: el apodo se guarda y es lo que se muestra acá si existe (si
+      no, se usa el nombre).
+      _Pendiente de tu parte_: entrá a un equipo con algún pendiente (podés generar uno
+      inscribiéndote vos mismo desde el link de invitación) y probá aprobar/rechazar
+      desde la interfaz.
 
 ## Bloque 5 — Partidos
 

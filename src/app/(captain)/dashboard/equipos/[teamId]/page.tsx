@@ -3,8 +3,11 @@ import Link from "next/link";
 
 import { CopyLinkButton } from "@/components/share/copy-link-button";
 import { InviteQr } from "@/components/share/invite-qr";
+import { MemberActions } from "@/components/team/member-actions";
 import { RegenerateInviteButton } from "@/components/team/regenerate-invite-button";
 import { requireTeamOwnership } from "@/lib/auth";
+import { formatearTelefono } from "@/lib/phone";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = { title: "Equipo" };
 
@@ -16,6 +19,19 @@ export default async function EquipoPage(
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const inviteUrl = `${siteUrl}/unirse/${team.inviteCode}`;
+
+  const [pendientes, plantel] = await Promise.all([
+    prisma.teamMember.findMany({
+      where: { teamId: team.id, status: "PENDING" },
+      include: { player: true },
+      orderBy: { requestedAt: "asc" },
+    }),
+    prisma.teamMember.findMany({
+      where: { teamId: team.id, status: "APPROVED" },
+      include: { player: true },
+      orderBy: { requestedAt: "asc" },
+    }),
+  ]);
 
   return (
     <div className="mx-auto max-w-md">
@@ -41,10 +57,65 @@ export default async function EquipoPage(
         </div>
       </div>
 
-      <p className="mt-6 text-center text-sm opacity-60">
-        Todavía no está la lista del plantel acá — eso llega en el próximo
-        paso del roadmap.
-      </p>
+      {pendientes.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-sm font-semibold uppercase tracking-wide opacity-70">
+            Pendientes de aprobar ({pendientes.length})
+          </h2>
+          <ul className="mt-3 space-y-2">
+            {pendientes.map((member) => (
+              <li
+                key={member.id}
+                className="flex items-center justify-between gap-3 rounded-lg border border-black/10 px-4 py-3 dark:border-white/10"
+              >
+                <div className="min-w-0">
+                  <p className="truncate font-medium">
+                    {member.nickname ?? member.player.name}
+                  </p>
+                  <p className="text-xs opacity-60">
+                    {formatearTelefono(member.player.phone)}
+                  </p>
+                </div>
+                <MemberActions teamMemberId={member.id} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="mt-8">
+        <h2 className="text-sm font-semibold uppercase tracking-wide opacity-70">
+          Plantel ({plantel.length})
+        </h2>
+        {plantel.length === 0 ? (
+          <p className="mt-3 text-sm opacity-60">
+            Todavía no hay nadie aprobado.
+          </p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {plantel.map((member) => (
+              <li
+                key={member.id}
+                className="flex items-center justify-between rounded-lg border border-black/10 px-4 py-3 dark:border-white/10"
+              >
+                <div>
+                  <p className="font-medium">
+                    {member.nickname ?? member.player.name}
+                    {member.role === "CAPTAIN" && (
+                      <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
+                        Capitán
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-xs opacity-60">
+                    {formatearTelefono(member.player.phone)}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
