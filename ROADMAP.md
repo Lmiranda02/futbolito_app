@@ -99,10 +99,18 @@ una vez.
 
 ## Bloque 3 — Equipos e invitación
 
-- [ ] **3.1 Crear equipo.** Form (nombre del equipo + "yo también juego" con nombre y
+- [x] **3.1 Crear equipo.** Form (nombre del equipo + "yo también juego" con nombre y
       teléfono) → server action que genera `inviteCode` y la membresía `CAPTAIN` aprobada.
       Lista de equipos en el dashboard.
-      _Verificable_: creas un equipo, aparece en la lista y tú ya estás en el plantel.
+      _Verificado por el agente_ (a nivel de base de datos, mismos pasos que la server
+      action: crear equipo + upsert de Player por teléfono + TeamMember CAPTAIN/APPROVED):
+      el equipo queda con su inviteCode de 8 caracteres, la membresía del capitán queda
+      aprobada de una, y crear un segundo equipo con el mismo teléfono reusa el mismo
+      Player en vez de duplicarlo. `/dashboard/equipos/nuevo` sin sesión redirige a
+      `/login`.
+      _Pendiente de tu parte_: no se pudo probar por la interfaz porque requiere una
+      sesión real (magic link) que el agente no puede completar solo — probá crear un
+      equipo desde `/dashboard` y confirmá que aparece en la lista.
 - [ ] **3.2 Página del equipo con link y QR.** Link de invitación, QR (`qrcode.react`),
       botón copiar, botón regenerar código.
       _Verificable_: escaneas el QR con el celular y abre `/unirse/<code>`.
