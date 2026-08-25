@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { requireCaptain } from "@/lib/auth";
+import { requireCaptain, requireTeamOwnership } from "@/lib/auth";
 import { generarInviteCode } from "@/lib/codes";
 import { normalizarTelefono } from "@/lib/phone";
 import { prisma } from "@/lib/prisma";
@@ -135,4 +135,42 @@ export async function crearEquipo(
 
   revalidatePath("/dashboard");
   redirect("/dashboard");
+}
+
+/**
+ * Genera un inviteCode nuevo para el equipo, dejando el anterior sin
+ * efecto. El link/QR que ya se haya compartido deja de funcionar — es la
+ * salida para cuando un capitán cree que el link se filtró.
+ */
+export async function regenerarInviteCode(teamId: string): Promise<void> {
+  const { team } = await requireTeamOwnership(teamId);
+
+  let actualizado = false;
+  for (let intento = 0; intento < 5 && !actualizado; intento++) {
+    const nuevoCodigo = generarInviteCode();
+    try {
+      await prisma.team.update({
+        where: { id: team.id },
+        data: { inviteCode: nuevoCodigo },
+      });
+      actualizado = true;
+    } catch (error) {
+      const esChoqueDeCodigo =
+        error !== null &&
+        typeof error === "object" &&
+        "code" in error &&
+        error.code === "P2002";
+      if (!esChoqueDeCodigo) throw error;
+      // Sigue el loop y prueba con otro código.
+    }
+  }
+
+  if (!actualizado) {
+    console.error(
+      `[regenerarInviteCode] no se pudo generar un código único para el equipo ${team.id} tras 5 intentos`,
+    );
+    return;
+  }
+
+  revalidatePath(`/dashboard/equipos/${team.id}`);
 }

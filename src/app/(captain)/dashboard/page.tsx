@@ -50,14 +50,16 @@ export default async function DashboardPage() {
       ) : (
         <ul className="mt-8 space-y-3">
           {teams.map((team) => (
-            <li
-              key={team.id}
-              className="flex items-center justify-between rounded-lg border border-black/10 px-4 py-3 dark:border-white/10"
-            >
-              <span className="font-medium">{team.name}</span>
-              <span className="text-sm opacity-60">
-                {team._count.members} en el plantel
-              </span>
+            <li key={team.id}>
+              <Link
+                href={`/dashboard/equipos/${team.id}`}
+                className="flex items-center justify-between rounded-lg border border-black/10 px-4 py-3 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/5"
+              >
+                <span className="font-medium">{team.name}</span>
+                <span className="text-sm opacity-60">
+                  {team._count.members} en el plantel
+                </span>
+              </Link>
             </li>
           ))}
         </ul>

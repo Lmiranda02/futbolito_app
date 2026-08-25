@@ -111,9 +111,19 @@ una vez.
       _Pendiente de tu parte_: no se pudo probar por la interfaz porque requiere una
       sesión real (magic link) que el agente no puede completar solo — probá crear un
       equipo desde `/dashboard` y confirmá que aparece en la lista.
-- [ ] **3.2 Página del equipo con link y QR.** Link de invitación, QR (`qrcode.react`),
+- [x] **3.2 Página del equipo con link y QR.** Link de invitación, QR (`qrcode.react`),
       botón copiar, botón regenerar código.
-      _Verificable_: escaneas el QR con el celular y abre `/unirse/<code>`.
+      _Verificado por el agente_: sin sesión, `/dashboard/equipos/[id]` redirige a
+      `/login` (antes de siquiera mirar si el equipo existe). A nivel de base de datos,
+      con dos capitanes de prueba: un capitán no puede "ver" el equipo de otro (mismo
+      404 que un id inventado — no se puede distinguir "no existe" de "no es tuyo"), y
+      regenerar el código efectivamente cambia el inviteCode del equipo.
+      _Importante_: el QR ya apunta bien a `/unirse/<code>`, pero esa página recién se
+      construye en la tarea 4.1 — hasta entonces, escanearlo muestra un 404. Es lo
+      esperado en este punto del roadmap, no un bug.
+      _Pendiente de tu parte_: entrá a un equipo desde `/dashboard`, confirmá que se ve
+      el link y el QR, probá copiar el link, y probá regenerar el código (el link viejo
+      debería dejar de andar cuando lleguemos a la 4.1).
 
 ## Bloque 4 — Inscripción y aprobación
 

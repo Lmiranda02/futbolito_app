@@ -1,9 +1,9 @@
 import "server-only";
 
 import { cache } from "react";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
-import type { Captain } from "@/generated/prisma/client";
+import type { Captain, Team } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 
@@ -52,3 +52,26 @@ export async function requireCaptain(): Promise<Captain> {
   }
   return captain;
 }
+
+/**
+ * Para páginas y server actions que operan sobre UN equipo puntual
+ * (/dashboard/equipos/[teamId] y todo lo que cuelgue de ahí). Devuelve el
+ * capitán y el equipo solo si el equipo existe Y es del capitán logueado.
+ *
+ * Si cualquiera de las dos condiciones falla, responde con un 404 — nunca
+ * con algo tipo "este equipo no es tuyo". Un capitán que prueba ids de
+ * equipos ajenos en la URL no puede distinguir "no existe" de "existe pero
+ * no es mío": las dos respuestas se ven exactamente igual desde afuera.
+ */
+export const requireTeamOwnership = cache(
+  async (teamId: string): Promise<{ captain: Captain; team: Team }> => {
+    const captain = await requireCaptain();
+    const team = await prisma.team.findUnique({ where: { id: teamId } });
+
+    if (!team || team.captainId !== captain.id) {
+      notFound();
+    }
+
+    return { captain, team };
+  },
+);
