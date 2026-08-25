@@ -127,10 +127,18 @@ una vez.
 
 ## Bloque 4 — Inscripción y aprobación
 
-- [ ] **4.1 Inscripción del jugador.** `/unirse/[inviteCode]` público: form nombre +
+- [x] **4.1 Inscripción del jugador.** `/unirse/[inviteCode]` público: form nombre +
       teléfono, normalización, upsert de `Player`, `TeamMember` en `PENDING`, y los casos
       borde (ya pendiente / ya aprobado / rechazado / código inválido).
-      _Verificable_: desde el celular te inscribes y el registro queda en la base.
+      _Verificado por el agente_, de punta a punta por la interfaz real (esta página es
+      pública, no necesita sesión): código inválido muestra "este link ya no sirve";
+      código en minúscula igual funciona; inscripción nueva queda `PENDING`; reenviar el
+      mismo teléfono en otro formato (`+56 9...` vs `9...`) lo reconoce como la misma
+      persona y no duplica nada; con la membresía en `APPROVED` muestra "ya estás en el
+      plantel"; con `REJECTED` vuelve a `PENDING` (confirmado en la base:
+      `decidedAt` se resetea). Límite de intentos por IP verificado por separado
+      (3 permitidos, el 4to rechazado, se resetea cuando vence la ventana). Todos los
+      datos de prueba se limpiaron al terminar.
 - [ ] **4.2 Aprobar o rechazar.** En la página del equipo: lista de pendientes con dos
       botones, y el plantel aprobado abajo. Al aprobar, crear asistencias `PENDING` para
       los partidos futuros ya existentes.

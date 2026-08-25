@@ -179,3 +179,18 @@ model Attendance {
   @@index([matchId, status])
   @@map("attendances")
 }
+
+/// Límite básico de intentos por IP en formularios públicos (por ahora,
+/// solo la inscripción de jugadores). No hay Redis/Vercel KV en el stack
+/// todavía, así que esto se apoya en Postgres: alcanza para el volumen
+/// que va a tener esta app. Cada fila se borra sola apenas se vence su
+/// ventana de tiempo (ver src/lib/rate-limit.ts), así la tabla no crece
+/// sin límite.
+model RateLimitHit {
+  id        String   @id @default(cuid())
+  key       String
+  createdAt DateTime @default(now())
+
+  @@index([key, createdAt])
+  @@map("rate_limit_hits")
+}
