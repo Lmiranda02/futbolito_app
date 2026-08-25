@@ -44,6 +44,32 @@ Decisiones de base tomadas al planificar (ver `CLAUDE.md` para el alcance por fa
       partido con sus asistencias. Script `npm run db:seed`.
       _Verificable_: los datos aparecen en Prisma Studio.
 
+## Seguridad transversal (revisada 2026-08-25)
+
+No es una fase del producto: es una pasada de dureza sobre lo que ya existe,
+antes de sumar el login. Se repite cada vez que se sienta necesario, no solo
+una vez.
+
+- [x] Confirmado que ningún secreto entró nunca a git (revisado el historial
+      completo, no solo el estado actual).
+- [x] Los 4 paquetes con scripts de instalación pendientes de revisión
+      (@prisma/engines, esbuild, prisma, unrs-resolver) fueron auditados
+      (cadena de dependencias limpia) y aprobados fijados a su versión
+      exacta en package.json → allowScripts. Una actualización futura de
+      cualquiera de los cuatro vuelve a pedir aprobación en vez de correr
+      sola.
+- [x] `npm audit`: una vulnerabilidad alta en deepmerge-ts (vía
+      @prisma/config) evaluada y descartada a propósito — solo la usa el
+      CLI de Prisma para fusionar nuestro propio prisma.config.ts en
+      build/local, nunca código que sirva requests de usuarios. Arreglarla
+      exige bajar a Prisma 6 y perder el adaptador; no vale la pena para un
+      vector sin superficie de ataque real acá.
+- [x] Cabeceras de seguridad HTTP en src/lib/security-headers.ts, aplicadas
+      en src/proxy.ts a cada respuesta: CSP con nonce por request
+      (verificado que Next lo aplica a sus 16 <script> inyectados, y que
+      producción no lleva unsafe-eval), X-Frame-Options, nosniff,
+      Referrer-Policy, Permissions-Policy y HSTS.
+
 ## Bloque 2 — Auth del capitán
 
 - [x] **2.1 Clientes de Supabase + middleware de sesión.** `lib/supabase/{client,server,
