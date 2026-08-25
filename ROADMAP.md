@@ -189,9 +189,19 @@ una vez.
 
 ## Bloque 6 — Confirmación del jugador
 
-- [ ] **6.1 Vista pública del partido.** `/partido/[publicId]`: datos del partido, cuenta
+- [x] **6.1 Vista pública del partido.** `/partido/[publicId]`: datos del partido, cuenta
       regresiva hasta la hora límite, plantel con el estado de cada uno.
-      _Verificable_: abres el link en el celular sin sesión y ves todo.
+      _Verificado por el agente_, de punta a punta por la interfaz real (esta página es
+      pública, no necesita sesión), con un partido de prueba y 3 asistencias (una de cada
+      estado): se ven el equipo, el rival, la fecha en español/Santiago, la cancha, el
+      cupo, la cuenta regresiva corriendo en vivo (confirmado que avanza segundo a
+      segundo, no un número estático) y el plantel con apodo o nombre y su estado (Va /
+      No va / Sin responder). También: link inválido muestra "este link no es válido";
+      con el plazo vencido muestra "ya venció"; con el partido cancelado muestra "fue
+      cancelado" — sin ningún error de hidratación en consola en ninguno de los casos
+      (el punto más delicado de esta tarea: la cuenta regresiva usa useSyncExternalStore
+      en vez de useState+useEffect, que es lo que evita ese error). noindex confirmado.
+      Todos los datos de prueba se limpiaron al terminar.
 - [ ] **6.2 Voy / No voy.** Server action que valida partido `SCHEDULED` y
       `now < confirmDeadline`, actualiza la asistencia y revalida. Después del límite, solo
       lectura.
