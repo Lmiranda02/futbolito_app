@@ -17,10 +17,10 @@ Decisiones de base tomadas al planificar (ver `CLAUDE.md` para el alcance por fa
 - [x] **0.1 Inicializar el proyecto.** Next.js (App Router) + TypeScript + Tailwind +
       ESLint, con `src/`. Primer commit y push a `Lmiranda02/futbolito_app`.
       _Verificable_: `npm run dev` levanta y muestra la home en localhost:3000.
-- [ ] **0.2 Deploy inicial en Vercel.** Crear cuenta, importar el repo, deploy de la
+- [x] **0.2 Deploy inicial en Vercel.** Crear cuenta, importar el repo, deploy de la
       landing vacía. Poner la región de funciones en **São Paulo (`gru1`)**.
       _Verificable_: la URL pública de Vercel abre la home; un push a `main` redeploya solo.
-- [ ] **0.3 Crear el proyecto de Supabase.** Región **South America (São Paulo)** —ojo, no
+- [x] **0.3 Crear el proyecto de Supabase.** Región **South America (São Paulo)** —ojo, no
       se puede cambiar después—. Anotar `DATABASE_URL` (pooler 6543), `DIRECT_URL` (5432)
       y las claves. Armar `.env.local` y `.env.example` con las 5 variables, y cargarlas
       también en Vercel.

@@ -1,0 +1,14 @@
+// Modelo de datos de "Arma tu Partido".
+// La URL de conexión no vive acá: se configura en prisma.config.ts, que lee
+// las variables de entorno.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Los modelos se agregan en la tarea 1.1 del ROADMAP.
