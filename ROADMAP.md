@@ -40,7 +40,7 @@ Decisiones de base tomadas al planificar (ver `CLAUDE.md` para el alcance por fa
       "confirmar": chequear que las tablas nuevas nazcan con RLS activo y que la API REST
       no exponga nada.
       _Verificable_: pegarle a la API REST de Supabase con la anon key no devuelve datos.
-- [ ] **1.3 Seed de desarrollo.** Un capitán, un equipo, 6 jugadores (2 pendientes), un
+- [x] **1.3 Seed de desarrollo.** Un capitán, un equipo, 6 jugadores (2 pendientes), un
       partido con sus asistencias. Script `npm run db:seed`.
       _Verificable_: los datos aparecen en Prisma Studio.
 
