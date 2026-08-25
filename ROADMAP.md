@@ -46,7 +46,7 @@ Decisiones de base tomadas al planificar (ver `CLAUDE.md` para el alcance por fa
 
 ## Bloque 2 — Auth del capitán
 
-- [ ] **2.1 Clientes de Supabase + middleware de sesión.** `lib/supabase/{client,server,
+- [x] **2.1 Clientes de Supabase + middleware de sesión.** `lib/supabase/{client,server,
       middleware}.ts` y `src/middleware.ts` refrescando la sesión.
       _Verificable_: el proyecto compila y las rutas públicas siguen andando.
 - [ ] **2.2 Login con magic link.** `/login`, `/auth/callback` (canje + upsert de
