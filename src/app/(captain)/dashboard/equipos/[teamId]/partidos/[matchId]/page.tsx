@@ -83,7 +83,7 @@ export default async function PartidoPage(
         <div className="mt-4 flex flex-wrap gap-3">
           <Link
             href={`/dashboard/equipos/${team.id}/partidos/${match.id}/editar`}
-            className="rounded-md border border-black/15 px-3 py-1.5 text-sm font-medium hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+            className="rounded-md border border-black/15 px-4 py-2.5 text-sm font-medium hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
           >
             Editar partido
           </Link>
@@ -126,28 +126,34 @@ export default async function PartidoPage(
         </div>
       </div>
 
-      {grupos.map(
-        ({ titulo, items }) =>
-          items.length > 0 && (
-            <div key={titulo} className="mt-8">
-              <h2 className="text-sm font-semibold uppercase tracking-wide opacity-70">
-                {titulo} ({items.length})
-              </h2>
-              <ul className="mt-3 space-y-2">
-                {items.map((attendance) => (
-                  <li
-                    key={attendance.id}
-                    className="rounded-lg border border-black/10 px-4 py-3 dark:border-white/10"
-                  >
-                    <p className="font-medium">
-                      {attendance.teamMember.nickname ??
-                        attendance.teamMember.player.name}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ),
+      {asistencias.length === 0 ? (
+        <p className="mt-8 text-sm opacity-60">
+          Todavía no hay nadie en el plantel para convocar a este partido.
+        </p>
+      ) : (
+        grupos.map(
+          ({ titulo, items }) =>
+            items.length > 0 && (
+              <div key={titulo} className="mt-8">
+                <h2 className="text-sm font-semibold uppercase tracking-wide opacity-70">
+                  {titulo} ({items.length})
+                </h2>
+                <ul className="mt-3 space-y-2">
+                  {items.map((attendance) => (
+                    <li
+                      key={attendance.id}
+                      className="rounded-lg border border-black/10 px-4 py-3 dark:border-white/10"
+                    >
+                      <p className="font-medium">
+                        {attendance.teamMember.nickname ??
+                          attendance.teamMember.player.name}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ),
+        )
       )}
     </div>
   );

@@ -234,8 +234,21 @@ una vez.
 
 ## Bloque 7 — Salida a la cancha
 
-- [ ] **7.1 Pasada mobile-first.** Estados vacíos, loading, errores de formulario,
+- [x] **7.1 Pasada mobile-first.** Estados vacíos, loading, errores de formulario,
       botones grandes. Todo se usa desde el celular y en la calle.
+      _Verificado por el agente_: botón "Voy/No voy" (el más crítico — lo toca cualquier
+      jugador desde su celular) agrandado a `py-3 text-base`, ancho completo en pantallas
+      chicas; probado en 375px con nombres deliberadamente largos para forzar el layout,
+      en claro y en oscuro, con un click real (vía JS, porque la herramienta de click
+      quedó confundida por los reintentos fallidos de HMR de este entorno — no un bug de
+      la app: confirmado con la base de datos, que sí quedó `CONFIRMED`). Todos los
+      botones primarios pasaron de `py-2.5 text-sm` a `py-3 text-base`; los secundarios
+      (aprobar/rechazar/editar/cancelar/regenerar/copiar) de `py-1.5`/`py-2` a `py-2.5`.
+      Feedback de carga agregado donde faltaba (Aprobar/Rechazar de un jugador pendiente
+      no tenían texto de "cargando"). Estado vacío agregado al detalle del partido para
+      cuando todavía no hay nadie en el plantel (antes no mostraba nada). Los inputs ya
+      usaban `text-base` desde el principio (evita el zoom automático de iOS al enfocar
+      un campo), sin cambios ahí más que un poco más de aire vertical.
 - [ ] **7.2 Detalles finos.** `noindex` en rutas con código, 404 propias, metadatos y título,
       formato de fechas en español de Chile (`America/Santiago`). Probar con una fecha
       posterior al cambio de horario para confirmar que no se corre una hora.

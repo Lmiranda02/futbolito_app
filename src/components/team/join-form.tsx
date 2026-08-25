@@ -36,7 +36,7 @@ export function JoinForm({ inviteCode }: { inviteCode: string }) {
           type="text"
           required
           placeholder="Nombre y apellido"
-          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-base outline-none focus:border-emerald-600 dark:border-white/20"
+          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2.5 text-base outline-none focus:border-emerald-600 dark:border-white/20"
         />
         {state.fieldErrors?.nombre && (
           <p className="mt-1 text-sm text-red-700 dark:text-red-400">
@@ -54,7 +54,7 @@ export function JoinForm({ inviteCode }: { inviteCode: string }) {
           name="apodo"
           type="text"
           placeholder="Cómo te dicen en la cancha"
-          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-base outline-none focus:border-emerald-600 dark:border-white/20"
+          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2.5 text-base outline-none focus:border-emerald-600 dark:border-white/20"
         />
         {state.fieldErrors?.apodo && (
           <p className="mt-1 text-sm text-red-700 dark:text-red-400">
@@ -74,7 +74,7 @@ export function JoinForm({ inviteCode }: { inviteCode: string }) {
           inputMode="numeric"
           required
           placeholder="9 1234 5678"
-          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-base outline-none focus:border-emerald-600 dark:border-white/20"
+          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2.5 text-base outline-none focus:border-emerald-600 dark:border-white/20"
         />
         {state.fieldErrors?.telefono && (
           <p className="mt-1 text-sm text-red-700 dark:text-red-400">
@@ -92,7 +92,7 @@ export function JoinForm({ inviteCode }: { inviteCode: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-md bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
+        className="w-full rounded-md bg-emerald-600 px-4 py-3 text-base font-medium text-white disabled:opacity-60"
       >
         {pending ? "Enviando..." : "Unirme al equipo"}
       </button>

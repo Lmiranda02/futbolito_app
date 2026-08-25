@@ -39,7 +39,7 @@ export function EditMatchForm({
           type="text"
           required
           defaultValue={valoresIniciales.venue}
-          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-base outline-none focus:border-emerald-600 dark:border-white/20"
+          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2.5 text-base outline-none focus:border-emerald-600 dark:border-white/20"
         />
         {state.fieldErrors?.venue && (
           <p className="mt-1 text-sm text-red-700 dark:text-red-400">
@@ -57,7 +57,7 @@ export function EditMatchForm({
           name="opponent"
           type="text"
           defaultValue={valoresIniciales.opponent}
-          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-base outline-none focus:border-emerald-600 dark:border-white/20"
+          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2.5 text-base outline-none focus:border-emerald-600 dark:border-white/20"
         />
         {state.fieldErrors?.opponent && (
           <p className="mt-1 text-sm text-red-700 dark:text-red-400">
@@ -76,7 +76,7 @@ export function EditMatchForm({
           type="datetime-local"
           required
           defaultValue={valoresIniciales.kickoffAt}
-          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-base outline-none focus:border-emerald-600 dark:border-white/20"
+          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2.5 text-base outline-none focus:border-emerald-600 dark:border-white/20"
         />
         {state.fieldErrors?.kickoffAt && (
           <p className="mt-1 text-sm text-red-700 dark:text-red-400">
@@ -95,7 +95,7 @@ export function EditMatchForm({
           type="datetime-local"
           required
           defaultValue={valoresIniciales.confirmDeadline}
-          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-base outline-none focus:border-emerald-600 dark:border-white/20"
+          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2.5 text-base outline-none focus:border-emerald-600 dark:border-white/20"
         />
         {state.fieldErrors?.confirmDeadline && (
           <p className="mt-1 text-sm text-red-700 dark:text-red-400">
@@ -114,7 +114,7 @@ export function EditMatchForm({
           type="number"
           min="1"
           defaultValue={valoresIniciales.slots}
-          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-base outline-none focus:border-emerald-600 dark:border-white/20"
+          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2.5 text-base outline-none focus:border-emerald-600 dark:border-white/20"
         />
         {state.fieldErrors?.slots && (
           <p className="mt-1 text-sm text-red-700 dark:text-red-400">
@@ -132,7 +132,7 @@ export function EditMatchForm({
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-md bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
+        className="w-full rounded-md bg-emerald-600 px-4 py-3 text-base font-medium text-white disabled:opacity-60"
       >
         {pending ? "Guardando..." : "Guardar cambios"}
       </button>

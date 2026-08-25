@@ -69,7 +69,7 @@ export default async function EquipoPage(
           </h2>
           <Link
             href={`/dashboard/equipos/${team.id}/partidos/nuevo`}
-            className="shrink-0 rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white"
+            className="shrink-0 rounded-md bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white"
           >
             + Convocar
           </Link>

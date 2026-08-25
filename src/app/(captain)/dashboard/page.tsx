@@ -29,7 +29,7 @@ export default async function DashboardPage() {
         </h1>
         <Link
           href="/dashboard/equipos/nuevo"
-          className="shrink-0 rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white"
+          className="shrink-0 rounded-md bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white"
         >
           + Nuevo equipo
         </Link>
@@ -42,7 +42,7 @@ export default async function DashboardPage() {
           </p>
           <Link
             href="/dashboard/equipos/nuevo"
-            className="mt-4 inline-block rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white"
+            className="mt-4 inline-block rounded-md bg-emerald-600 px-4 py-3 text-base font-medium text-white"
           >
             Crear mi primer equipo
           </Link>

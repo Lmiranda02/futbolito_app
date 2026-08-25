@@ -17,7 +17,7 @@ export function CopyLinkButton({ text }: { text: string }) {
         }
         setTimeout(() => setEstado("idle"), 2000);
       }}
-      className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white"
+      className="rounded-md bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white"
     >
       {estado === "copiado"
         ? "¡Copiado!"

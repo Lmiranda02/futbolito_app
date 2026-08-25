@@ -39,7 +39,7 @@ export function LoginForm() {
           autoComplete="email"
           required
           placeholder="tu@correo.cl"
-          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-base outline-none focus:border-emerald-600 dark:border-white/20"
+          className="mt-1 w-full rounded-md border border-black/15 bg-transparent px-3 py-2.5 text-base outline-none focus:border-emerald-600 dark:border-white/20"
         />
       </div>
 
@@ -52,7 +52,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-md bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-opacity disabled:opacity-60"
+        className="w-full rounded-md bg-emerald-600 px-4 py-3 text-base font-medium text-white transition-opacity disabled:opacity-60"
       >
         {pending ? "Enviando..." : "Mandarme el link"}
       </button>
