@@ -158,12 +158,20 @@ una vez.
 
 ## Bloque 5 — Partidos
 
-- [ ] **5.1 Convocar partido.** Form (fecha y hora, cancha, rival opcional, cupo opcional,
+- [x] **5.1 Convocar partido.** Form (fecha y hora, cancha, rival opcional, cupo opcional,
       hora límite) con validaciones (límite antes del partido, partido en el futuro),
       conversión a UTC, `publicId`, y creación de las asistencias del plantel aprobado.
       Lista de próximos partidos en la página del equipo.
-      _Verificable_: creas un partido y en la base hay una fila `Attendance` por jugador
-      aprobado.
+      _Verificado por el agente_: la conversión de horario probada aparte, con un caso en
+      horario de invierno (UTC-4) y uno en horario de verano (UTC-3) — las dos dan el
+      offset correcto y el round-trip muestra la misma hora que se cargó. A nivel de base
+      de datos (mismos pasos que la server action, con 3 aprobados + 1 pendiente de
+      prueba): el partido nace `SCHEDULED` con `publicId` de 12 caracteres, y se crean
+      asistencias `PENDING` para los 3 aprobados exactamente — el pendiente no recibe
+      ninguna. Las reglas "partido en el futuro" y "límite antes del partido" confirmadas.
+      La ruta de convocatoria sin sesión redirige a `/login`.
+      _Pendiente de tu parte_: entrá a un equipo con plantel aprobado y convocá un
+      partido de verdad desde la interfaz.
 - [ ] **5.2 Detalle del partido (capitán).** Contadores (confirmados / no van /
       pendientes), lista agrupada por estado, link del partido con botón copiar + QR,
       y editar/cancelar partido.

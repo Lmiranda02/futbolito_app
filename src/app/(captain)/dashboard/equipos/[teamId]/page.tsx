@@ -6,6 +6,7 @@ import { InviteQr } from "@/components/share/invite-qr";
 import { MemberActions } from "@/components/team/member-actions";
 import { RegenerateInviteButton } from "@/components/team/regenerate-invite-button";
 import { requireTeamOwnership } from "@/lib/auth";
+import { formatearFechaChile } from "@/lib/dates";
 import { formatearTelefono } from "@/lib/phone";
 import { prisma } from "@/lib/prisma";
 
@@ -20,7 +21,7 @@ export default async function EquipoPage(
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const inviteUrl = `${siteUrl}/unirse/${team.inviteCode}`;
 
-  const [pendientes, plantel] = await Promise.all([
+  const [pendientes, plantel, proximosPartidos] = await Promise.all([
     prisma.teamMember.findMany({
       where: { teamId: team.id, status: "PENDING" },
       include: { player: true },
@@ -30,6 +31,10 @@ export default async function EquipoPage(
       where: { teamId: team.id, status: "APPROVED" },
       include: { player: true },
       orderBy: { requestedAt: "asc" },
+    }),
+    prisma.match.findMany({
+      where: { teamId: team.id, status: "SCHEDULED", kickoffAt: { gt: new Date() } },
+      orderBy: { kickoffAt: "asc" },
     }),
   ]);
 
@@ -55,6 +60,42 @@ export default async function EquipoPage(
           <CopyLinkButton text={inviteUrl} />
           <RegenerateInviteButton teamId={team.id} />
         </div>
+      </div>
+
+      <div className="mt-8">
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wide opacity-70">
+            Próximos partidos ({proximosPartidos.length})
+          </h2>
+          <Link
+            href={`/dashboard/equipos/${team.id}/partidos/nuevo`}
+            className="shrink-0 rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white"
+          >
+            + Convocar
+          </Link>
+        </div>
+
+        {proximosPartidos.length === 0 ? (
+          <p className="mt-3 text-sm opacity-60">
+            Todavía no hay ningún partido convocado.
+          </p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {proximosPartidos.map((match) => (
+              <li
+                key={match.id}
+                className="rounded-lg border border-black/10 px-4 py-3 dark:border-white/10"
+              >
+                <p className="font-medium">
+                  {match.opponent ? `vs. ${match.opponent}` : "Partido"}
+                </p>
+                <p className="text-sm opacity-70">
+                  {formatearFechaChile(match.kickoffAt)} — {match.venue}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {pendientes.length > 0 && (
