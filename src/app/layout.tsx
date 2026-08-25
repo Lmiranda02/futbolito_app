@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Armá tu Partido",
+  title: "Arma tu Partido",
   description:
-    "Organizá los partidos de tu equipo sin cadenas de WhatsApp: invitación por link, plantel aprobado y confirmación de asistencia con hora límite.",
+    "Organiza los partidos de tu equipo sin cadenas de WhatsApp: invitación por link, plantel aprobado y confirmación de asistencia con hora límite.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

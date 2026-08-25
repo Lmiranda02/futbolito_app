@@ -1,4 +1,4 @@
-# Armá tu Partido — Gestión de partidos de fútbol amateur
+# Arma tu Partido — Gestión de partidos de fútbol amateur
 
 ## Qué es esto
 App web para que capitanes organicen equipos y partidos de fútbol amateur sin

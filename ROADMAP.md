@@ -1,4 +1,4 @@
-# ROADMAP — Armá tu Partido
+# ROADMAP — Arma tu Partido
 
 Estado: **Fase 1 (MVP)**. Cada tarea es chica, verificable y está en orden de dependencia.
 Marcar el checkbox solo cuando el criterio _Verificable_ se cumplió de verdad.
@@ -49,29 +49,29 @@ Decisiones de base tomadas al planificar (ver `CLAUDE.md` para el alcance por fa
 - [ ] **2.2 Login con magic link.** `/login`, `/auth/callback` (canje + upsert de
       `Captain`), `/auth/signout`, `/dashboard` placeholder protegido, helper
       `requireCaptain()`.
-      _Verificable_: entrás con tu email, llegás al dashboard, cerrás sesión, y
-      `/dashboard` te patea a `/login`.
+      _Verificable_: entras con tu email, llegas al dashboard, cierras sesión, y
+      `/dashboard` te manda de vuelta a `/login`.
 
 ## Bloque 3 — Equipos e invitación
 
 - [ ] **3.1 Crear equipo.** Form (nombre del equipo + "yo también juego" con nombre y
       teléfono) → server action que genera `inviteCode` y la membresía `CAPTAIN` aprobada.
       Lista de equipos en el dashboard.
-      _Verificable_: creás un equipo y aparece en la lista con vos en el plantel.
+      _Verificable_: creas un equipo, aparece en la lista y tú ya estás en el plantel.
 - [ ] **3.2 Página del equipo con link y QR.** Link de invitación, QR (`qrcode.react`),
       botón copiar, botón regenerar código.
-      _Verificable_: escaneás el QR con el celular y abre `/unirse/<code>`.
+      _Verificable_: escaneas el QR con el celular y abre `/unirse/<code>`.
 
 ## Bloque 4 — Inscripción y aprobación
 
 - [ ] **4.1 Inscripción del jugador.** `/unirse/[inviteCode]` público: form nombre +
       teléfono, normalización, upsert de `Player`, `TeamMember` en `PENDING`, y los casos
       borde (ya pendiente / ya aprobado / rechazado / código inválido).
-      _Verificable_: desde el celular te inscribís y el registro queda en la base.
+      _Verificable_: desde el celular te inscribes y el registro queda en la base.
 - [ ] **4.2 Aprobar o rechazar.** En la página del equipo: lista de pendientes con dos
       botones, y el plantel aprobado abajo. Al aprobar, crear asistencias `PENDING` para
       los partidos futuros ya existentes.
-      _Verificable_: aprobás a uno y pasa de "pendientes" a "plantel" sin recargar a mano.
+      _Verificable_: apruebas a uno y pasa de "pendientes" a "plantel" sin recargar a mano.
 
 ## Bloque 5 — Partidos
 
@@ -79,7 +79,7 @@ Decisiones de base tomadas al planificar (ver `CLAUDE.md` para el alcance por fa
       hora límite) con validaciones (límite antes del partido, partido en el futuro),
       conversión a UTC, `publicId`, y creación de las asistencias del plantel aprobado.
       Lista de próximos partidos en la página del equipo.
-      _Verificable_: creás un partido y en la base hay una fila `Attendance` por jugador
+      _Verificable_: creas un partido y en la base hay una fila `Attendance` por jugador
       aprobado.
 - [ ] **5.2 Detalle del partido (capitán).** Contadores (confirmados / no van /
       pendientes), lista agrupada por estado, link del partido con botón copiar + QR,
@@ -91,11 +91,11 @@ Decisiones de base tomadas al planificar (ver `CLAUDE.md` para el alcance por fa
 
 - [ ] **6.1 Vista pública del partido.** `/partido/[publicId]`: datos del partido, cuenta
       regresiva hasta la hora límite, plantel con el estado de cada uno.
-      _Verificable_: abrís el link en el celular sin sesión y ves todo.
+      _Verificable_: abres el link en el celular sin sesión y ves todo.
 - [ ] **6.2 Voy / No voy.** Server action que valida partido `SCHEDULED` y
       `now < confirmDeadline`, actualiza la asistencia y revalida. Después del límite, solo
       lectura.
-      _Verificable_: confirmás desde el celular y el capitán ve el cambio; adelantando el
+      _Verificable_: confirmas desde el celular y el capitán ve el cambio; adelantando el
       deadline en la base, los botones se bloquean.
 - [ ] **6.3 Auto-refresh del capitán.** Refresco cada ~20s en el detalle del partido.
       _Verificable_: dos dispositivos lado a lado; el conteo del capitán se mueve solo.
@@ -104,7 +104,7 @@ Decisiones de base tomadas al planificar (ver `CLAUDE.md` para el alcance por fa
 
 - [ ] **7.1 Pasada mobile-first.** Estados vacíos, loading, errores de formulario,
       botones grandes. Todo se usa desde el celular y en la calle.
-- [ ] **7.2 Prolijidad.** `noindex` en rutas con código, 404 propias, metadatos y título,
+- [ ] **7.2 Detalles finos.** `noindex` en rutas con código, 404 propias, metadatos y título,
       formato de fechas en español de Chile (`America/Santiago`). Probar con una fecha
       posterior al cambio de horario para confirmar que no se corre una hora.
 - [ ] **7.3 Prueba real.** Un partido de verdad con tu equipo, de punta a punta en

@@ -6,10 +6,10 @@ export default function Home() {
           Fútbol amateur
         </p>
         <h1 className="mt-3 text-4xl font-bold tracking-tight text-balance">
-          Armá tu Partido
+          Arma tu Partido
         </h1>
         <p className="mt-4 text-base text-pretty opacity-70">
-          Invitá a tu equipo con un link, aprobá el plantel y sabé quién juega
+          Invita a tu equipo con un link, aprueba el plantel y ten claro quién juega
           antes de llegar a la cancha.
         </p>
         <p className="mt-10 text-sm opacity-50">
