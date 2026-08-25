@@ -75,11 +75,27 @@ una vez.
 - [x] **2.1 Clientes de Supabase + middleware de sesión.** `lib/supabase/{client,server,
       middleware}.ts` y `src/middleware.ts` refrescando la sesión.
       _Verificable_: el proyecto compila y las rutas públicas siguen andando.
-- [ ] **2.2 Login con magic link.** `/login`, `/auth/callback` (canje + upsert de
+- [x] **2.2 Login con magic link.** `/login`, `/auth/callback` (canje + upsert de
       `Captain`), `/auth/signout`, `/dashboard` placeholder protegido, helper
       `requireCaptain()`.
-      _Verificable_: entras con tu email, llegas al dashboard, cierras sesión, y
-      `/dashboard` te manda de vuelta a `/login`.
+      _Verificado por el agente_: `/dashboard` sin sesión redirige a `/login`;
+      `/auth/callback` sin código o con código inválido redirige a
+      `/login?error=link_invalido` con el mensaje visible; `/auth/signout` solo
+      responde a POST (GET da 405); protección contra open-redirect probada con
+      5 casos. El envío real del magic link a Supabase también se probó y
+      **funciona** (confirmado en los logs del servidor) — lo que no se pudo
+      probar automáticamente es abrir el correo y hacer click, porque eso pasa
+      fuera de la app.
+      _Pendiente de tu parte_: la cuota de correos del SMTP compartido de
+      Supabase se agotó durante las pruebas (`email rate limit exceeded`, unos
+      pocos por hora en el plan gratis). Cuando reponga, hacé la prueba real:
+      entrá con tu email, revisá la bandeja (y spam), hacé click, y confirmá
+      que llegás al dashboard y podés cerrar sesión. De paso confirmá en el
+      dashboard de Supabase (Authentication → URL Configuration) que
+      `http://localhost:3000/auth/callback` y
+      `https://arma-tu-partido.vercel.app/auth/callback` estén en Redirect
+      URLs — si no están, el link del correo no va a redirigir bien aunque el
+      correo sí llegue.
 
 ## Bloque 3 — Equipos e invitación
 
